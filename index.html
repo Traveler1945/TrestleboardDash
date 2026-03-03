@@ -18,6 +18,8 @@
   --text: #e0e0e8;
   --muted: #555566;
   --blue: #2a5aaa;
+  --hold: #8a68ff;
+  --info: #1f4d8f;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 13px; min-height: 100vh; }
@@ -236,10 +238,73 @@ select { cursor: pointer; }
 ::-webkit-scrollbar-thumb { background: var(--border); }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
+/* AUTONOMY MODE */
+.top-controls { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.mode-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.mode-selector { display: flex; gap: 6px; }
+.mode-btn { border: 1px solid var(--border); background: var(--surface2); color: var(--muted); padding: 6px 12px; font-size: 10px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; }
+.mode-btn.manual.active { border-color: #2a5aaa; color: #7ab0ff; box-shadow: inset 0 0 0 1px #2a5aaa; }
+.mode-btn.semi.active { border-color: var(--accent); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.mode-btn.full.active { border-color: var(--success); color: var(--success); box-shadow: inset 0 0 0 1px var(--success); }
+.mode-btn:focus { outline: none; }
+.brief-btn { border-color: var(--accent); color: var(--accent); }
+
+/* BANNERS */
+.constraints-banner { background: #0a0902; border-bottom: 1px solid var(--border); padding: 8px 24px; font-size: 10px; letter-spacing: 1px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; }
+.constraints-banner span { color: var(--accent); }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; padding: 0 6px; font-size: 9px; border-radius: 10px; background: var(--danger); color: #fff; margin-left: 6px; }
+.hold-badge { background: #1a0a2a; border: 1px solid var(--hold); color: var(--hold); padding: 2px 6px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+.priority-badge { padding: 2px 8px; border: 1px solid; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+.priority-critical { background: #1a0000; border-color: var(--danger); color: #ff7a7a; }
+.priority-high { background: #1a0f00; border-color: var(--warn); color: #ffb347; }
+.priority-med { background: #0a1a0f; border-color: #2a8a58; color: #6ad4a1; }
+.priority-low { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+
+/* INFO PANEL */
+.info-panel { background: #081224; border: 1px solid var(--info); border-left: 4px solid var(--info); padding: 12px 16px; color: #9ec5ff; font-size: 11px; margin-bottom: 16px; }
+.info-panel strong { color: #fff; }
+
+/* AGENTS */
+.agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.agent-card { background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--accent); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.agent-card h4 { font-size: 12px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+.agent-card p { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.agent-card .agent-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+.agent-conflict { background: #1a0000; border: 1px solid var(--danger); color: var(--danger); padding: 2px 6px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+
+/* CONFLICT LIST */
+.conflict-list { display: flex; flex-direction: column; gap: 10px; }
+.conflict-item { background: var(--surface2); border: 1px solid var(--border); padding: 12px 14px; }
+.conflict-item h5 { font-size: 11px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.conflict-item p { font-size: 11px; color: #aaa; margin-bottom: 6px; }
+.conflict-status { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+.conflict-status.pending { color: var(--warn); }
+.conflict-status.resolved { color: var(--success); }
+
+/* SIMULATION */
+.sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.sim-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; }
+.sim-card h4 { font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+.sim-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sim-output { margin-top: 16px; background: var(--surface2); border: 1px solid var(--border); padding: 14px; font-size: 11px; line-height: 1.6; color: #cfd6ff; min-height: 120px; white-space: pre-wrap; }
+
+/* CONSTRAINTS PANEL */
+.constraints-panel { background: var(--surface); border: 1px solid var(--border); padding: 18px; margin-bottom: 16px; }
+.constraints-panel h4 { font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.constraints-panel ol { padding-left: 18px; font-size: 11px; line-height: 1.6; color: #ccc; }
+.constraints-panel li { margin-bottom: 6px; }
+.constraints-subgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.constraints-subgrid div { background: var(--surface2); border: 1px solid var(--border); padding: 12px; font-size: 11px; line-height: 1.5; }
+.constraints-subgrid strong { color: var(--accent); display: block; margin-bottom: 4px; letter-spacing: 1px; }
+
 @media (max-width: 600px) {
   .forecast-grid { grid-template-columns: 1fr; }
   .top-metrics { display: none; }
   .stats-row .stat-card { min-width: 80px; }
+  .sim-grid { grid-template-columns: 1fr; }
+  .top-controls { align-items: flex-start; }
 }
 </style>
 </head>
@@ -252,8 +317,8 @@ select { cursor: pointer; }
     <div class="auth-tagline">Autonomous Revenue Operations Engine</div>
     <div class="auth-tagline" style="color:#333;margin-top:2px">Trestleboard Group LLC // Internal</div>
     <div class="auth-div"></div>
-    <input type="password" id="auth-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkAuth()" autofocus>
-    <button class="auth-btn" onclick="checkAuth()">AUTHENTICATE</button>
+    <input type="password" id="auth-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkAuth(event)" autofocus>
+    <button class="auth-btn" onclick="checkAuth(event)">AUTHENTICATE</button>
     <div class="auth-error" id="auth-error"></div>
   </div>
   <div class="auth-classify" style="margin-top:20px">CLASSIFICATION: INTERNAL OPERATIONS // RESTRICTED ACCESS</div>
@@ -263,12 +328,21 @@ select { cursor: pointer; }
 <div class="topbar">
   <div class="logo">
     <div class="logo-main">CLAWBOT <span style="color:var(--muted);font-size:11px">// TRESTLEBOARD</span></div>
-    <div class="logo-sub">AUTONOMOUS REVENUE OPERATIONS ENGINE · v2.0</div>
+    <div class="logo-sub">AUTONOMOUS REVENUE OPERATIONS ENGINE · v2.1</div>
   </div>
   <div class="top-metrics">
     <div class="top-metric"><div class="top-metric-val" id="tm-pipeline">$0</div><div class="top-metric-lbl">Pipeline EV</div></div>
     <div class="top-metric"><div class="top-metric-val" id="tm-leads">0</div><div class="top-metric-lbl">Active Leads</div></div>
     <div class="top-metric"><div class="top-metric-val" id="tm-decay" style="color:var(--danger)">0</div><div class="top-metric-lbl">Decay Risk</div></div>
+  </div>
+  <div class="top-controls">
+    <div class="mode-label">Autonomy Mode</div>
+    <div class="mode-selector" id="mode-selector">
+      <button class="mode-btn manual" data-mode="MANUAL" onclick="setAutonomyMode('MANUAL')">Manual</button>
+      <button class="mode-btn semi" data-mode="SEMI-AUTO" onclick="setAutonomyMode('SEMI-AUTO')">Semi-Auto</button>
+      <button class="mode-btn full" data-mode="FULL AUTO" onclick="setAutonomyMode('FULL AUTO')">Full Auto</button>
+    </div>
+    <button class="btn brief-btn" onclick="openStrategicBrief()">📋 Brief</button>
   </div>
   <div class="top-right">
     <span class="live-dot">LIVE</span>
@@ -288,8 +362,13 @@ select { cursor: pointer; }
   <button onclick="showSection('content',this)">Content Queue</button>
   <button onclick="showSection('objections',this)">Objections</button>
   <button onclick="showSection('meetings',this)">Meetings</button>
+  <button onclick="showSection('agents',this)">Agents <span class="badge" id="nav-conflict-badge" style="display:none">0</span></button>
+  <button onclick="showSection('simulation',this)">Simulation</button>
+  <button onclick="showSection('constraints',this)">Constraints</button>
   <button onclick="showSection('auditlog',this)">Audit Log</button>
 </div>
+
+<div class="constraints-banner" id="constraints-banner">HARD CONSTRAINTS ENABLED — Autonomy gated by federal compliance</div>
 
 <div class="main">
 
@@ -311,9 +390,10 @@ select { cursor: pointer; }
     <div class="stat-card"><div class="stat-value" id="cmd-briefings">0</div><div class="stat-label">Briefings</div></div>
     <div class="stat-card success"><div class="stat-value" id="cmd-closed">0</div><div class="stat-label">Closed</div></div>
   </div>
+  <div id="hold-info"></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
     <div>
-      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">Hot Leads — Immediate Action Required</div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">Priority Stack — Next Best Actions</div>
       <div id="cmd-hot-leads"></div>
     </div>
     <div>
@@ -345,8 +425,8 @@ select { cursor: pointer; }
   </div>
   <table>
     <thead><tr>
-      <th>Score</th><th>Name</th><th>Organization</th><th>Vertical</th>
-      <th>Status</th><th>Decay</th><th>Deal Value</th><th>Actions</th>
+      <th>Score</th><th>Lead</th><th>Organization</th><th>Vertical</th>
+      <th>Status</th><th>Decay</th><th>Priority</th><th>NBA</th><th>Profile</th><th>Deal Value</th><th>Actions</th>
     </tr></thead>
     <tbody id="lead-tbody"></tbody>
   </table>
@@ -408,6 +488,82 @@ select { cursor: pointer; }
   <div id="meetings-list"></div>
 </div>
 
+<!-- ══ AGENTS ══ -->
+<div class="section" id="section-agents">
+  <div class="section-header">
+    <div class="section-title">Agent Mesh & Conflict Control</div>
+    <div class="section-actions">
+      <button class="btn" onclick="syncAgentOutputs()">⟳ Refresh Outputs</button>
+      <button class="btn primary" onclick="openConflictModal()">+ Log Conflict</button>
+    </div>
+  </div>
+  <div class="agent-grid" id="agent-grid"></div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:18px 0 10px;text-transform:uppercase">Conflict Log</div>
+  <div class="conflict-list" id="conflict-list"></div>
+</div>
+
+<!-- ══ SIMULATION ══ -->
+<div class="section" id="section-simulation">
+  <div class="section-header">
+    <div class="section-title">Simulation Engine</div>
+    <div class="section-actions"><button class="btn" onclick="resetSimulationForm()">Reset</button></div>
+  </div>
+  <div class="sim-grid">
+    <div class="sim-card">
+      <h4>Scenario Preset</h4>
+      <div class="form-group">
+        <label>Preset</label>
+        <select id="sim-scenario" onchange="applyScenarioPreset(this.value)">
+          <option value="outreach_freq">Increase outreach frequency 20%</option>
+          <option value="linkedin_pivot">Shift primary channel to LinkedIn (IC vertical)</option>
+          <option value="discount_5">Add 5% pricing discount for FY Q4 close</option>
+          <option value="roman_touch">Deploy Roman as personal touch on top 3 deals</option>
+          <option value="callbot">Activate call bot on stalled email sequences</option>
+          <option value="custom">Custom scenario</option>
+        </select>
+      </div>
+      <div class="sim-inputs">
+        <div class="form-group"><label>Urgency Modifier (0.5-1.5)</label><input type="number" step="0.1" id="sim-urgency" value="1"></div>
+        <div class="form-group"><label>Conversion Rate Δ (%)</label><input type="number" id="sim-conv" value="0"></div>
+        <div class="form-group"><label>Cycle Time Δ (days)</label><input type="number" id="sim-cycle" value="0"></div>
+        <div class="form-group"><label>Agent Notes</label><input type="text" id="sim-notes" placeholder="Assumptions, risks"></div>
+      </div>
+      <button class="btn primary" style="margin-top:12px" onclick="runSimulation()">▶ Run Simulation</button>
+    </div>
+    <div class="sim-card">
+      <h4>Modeled Impact</h4>
+      <div class="sim-output" id="sim-output">Awaiting simulation...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONSTRAINTS ══ -->
+<div class="section" id="section-constraints">
+  <div class="section-header">
+    <div class="section-title">Hard Constraints & Doctrine</div>
+    <div class="section-actions"><button class="btn" style="display:none">Download</button></div>
+  </div>
+  <div class="constraints-panel">
+    <h4>Operational Hard Constraints</h4>
+    <ol id="constraints-list"></ol>
+  </div>
+  <div class="constraints-panel">
+    <h4>DoD Vertical Intelligence</h4>
+    <div class="constraints-subgrid">
+      <div><strong>Procurement Rhythms</strong>Q4 peak (Jul-Sep) · Continuing Resolution watch · NDAA cycle alignment · Rapid prototype lanes</div>
+      <div><strong>Decision-Maker Tiers</strong>O-6/GS-15 (program) → O-7+/SES-2+ (authority) → SECDEF/Deputy tier. Escalate GO/SES-3+/Congressional touchpoints to Roman immediately.</div>
+      <div><strong>Contract Vehicle Awareness</strong>OTA rapid awards · SBIR acceleration paths · IDIQ ceiling vigilance · Sole-source authorities · Teaming thresholds for set-asides.</div>
+    </div>
+  </div>
+  <div class="constraints-panel">
+    <h4>Brand Voice Standards</h4>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      <div><strong>Approved Approach</strong>Operational calm, data-backed proof, respectful escalation, Roman-as-principal when necessary.</div>
+      <div><strong>Prohibited Phrases</strong>No "disruption", "move fast", "guaranteed win", "weaponized narrative". Avoid aggressive or manipulative language.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ AUDIT LOG ══ -->
 <div class="section" id="section-auditlog">
   <div class="section-header">
@@ -452,6 +608,32 @@ select { cursor: pointer; }
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label>Contact Email</label><input type="email" id="lead-email" placeholder="name@agency.gov"></div>
         <div class="form-group"><label>Est. Deal Value ($)</label><input type="number" id="lead-value" placeholder="250000"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Psychological Profile</label>
+          <select id="lead-psych">
+            <option>Unknown</option>
+            <option>Authority-Driven (Senior Military / SES)</option>
+            <option>Analytical (PM / Contracting Officer)</option>
+            <option>Collaborative (Civilian Director)</option>
+            <option>Political (Congressional / Policy)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Manual Hold</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--hold);text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="lead-hold"> MANUAL HOLD — Do not engage autonomously
+          </label>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Urgency (1-3)</label><input type="number" id="lead-urgency" min="1" max="3" value="2"></div>
+        <div class="form-group"><label>Days to Close (est)</label><input type="number" id="lead-days" min="1" value="30"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="form-group"><label>NBA Primary</label><input type="text" id="nba-primary" placeholder="Default from stage"></div>
+        <div class="form-group"><label>NBA Fallback</label><input type="text" id="nba-fallback" placeholder="Secondary action"></div>
+        <div class="form-group"><label>NBA Escalation</label><input type="text" id="nba-escalation" placeholder="Escalation path"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
         <div class="form-group"><label>Engagement (0-10)</label><input type="number" id="score-engagement" min="0" max="10" placeholder="5"></div>
@@ -577,22 +759,109 @@ select { cursor: pointer; }
   </div>
 </div>
 
+<!-- STRATEGIC BRIEF -->
+<div class="modal-overlay" id="modal-strategic">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header"><div class="modal-title">Strategic Brief</div><button class="modal-close" onclick="closeModal('modal-strategic')">✕</button></div>
+    <div class="modal-body" id="strategic-brief-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-strategic')">Close</button>
+      <button class="btn primary" onclick="window.print()">Export PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFLICT -->
+<div class="modal-overlay" id="modal-conflict">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Log Conflict</div><button class="modal-close" onclick="closeModal('modal-conflict')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="conflict-id">
+      <div class="form-group"><label>Deal / Lead Name</label><input type="text" id="conflict-deal" placeholder="USSF Narrative Refresh"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Agent A + Position</label><input type="text" id="conflict-agent-a" placeholder="Lead Analyst — push for proposal"></div>
+        <div class="form-group"><label>Agent B + Position</label><input type="text" id="conflict-agent-b" placeholder="Negotiation Agent — caution procurement"></div>
+      </div>
+      <div class="form-group"><label>Decision Options</label><textarea id="conflict-options" placeholder="Option 1: accelerate outreach..."></textarea></div>
+      <div class="form-group"><label>Status</label>
+        <select id="conflict-status">
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Resolution (if resolved)</label><textarea id="conflict-resolution" placeholder="Decision, authority, rationale"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-conflict')">Cancel</button>
+      <button class="btn primary" onclick="saveConflict()">Save Conflict</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
+<script src="data.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════
-const STAGES = ['Qualified','Briefing','Proposal','Negotiation','Verbal','Closed'];
-const STAGE_MULT = { Qualified:0.30, Briefing:0.50, Proposal:0.70, Negotiation:0.85, Verbal:0.95, Closed:1.0 };
-const AUTH_PASS = 'Mufasa1945';
+if(!window.CLAW || !window.CLAW.CONFIG) {
+  throw new Error('CLAW config missing. Ensure data.js is loaded before index.js');
+}
+const {
+  STORAGE_KEY,
+  LEGACY_STORAGE_KEY,
+  STAGES,
+  STAGE_MULT,
+  DEFAULT_NBA,
+  HARD_CONSTRAINTS,
+  AGENT_DEFINITIONS,
+  SCENARIO_PRESETS,
+  AUTH: AUTH_CONFIG
+} = window.CLAW.CONFIG;
+const AUTH_META_KEY = 'clawbot_auth_meta';
 
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
-let state = { leads:[], campaigns:[], content:[], meetings:[], objections:[], auditLog:[] };
-function loadState() { try { const s = localStorage.getItem('clawbot_v2'); if(s) state = JSON.parse(s); } catch(e){} }
-function saveState() { localStorage.setItem('clawbot_v2', JSON.stringify(state)); }
+let state = { leads:[], campaigns:[], content:[], meetings:[], objections:[], auditLog:[], agentOutputs:{}, conflicts:[], autonomyMode:'SEMI-AUTO' };
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+    if(raw) state = { ...state, ...JSON.parse(raw) };
+  } catch(e){}
+  normalizeState();
+  if(!state.objections.length) seedObjections();
+  saveState();
+}
+function normalizeState(){
+  state.leads = (state.leads||[]).map(applyLeadDefaults);
+  state.campaigns = state.campaigns||[];
+  state.content = state.content||[];
+  state.meetings = state.meetings||[];
+  state.objections = state.objections||[];
+  state.auditLog = state.auditLog||[];
+  state.agentOutputs = state.agentOutputs||{};
+  state.conflicts = state.conflicts||[];
+  if(!state.autonomyMode) state.autonomyMode='SEMI-AUTO';
+}
+function applyLeadDefaults(lead){
+  return {
+    ...lead,
+    scoreEngagement: parseFloat(lead.scoreEngagement ?? 5) || 5,
+    scoreSpeed: parseFloat(lead.scoreSpeed ?? 5) || 5,
+    scoreFit: parseFloat(lead.scoreFit ?? 5) || 5,
+    nbaPrimary: lead.nbaPrimary || '',
+    nbaFallback: lead.nbaFallback || '',
+    nbaEscalation: lead.nbaEscalation || '',
+    psychProfile: lead.psychProfile || 'Unknown',
+    manualHold: !!lead.manualHold,
+    urgency: parseInt(lead.urgency ?? 2, 10) || 2,
+    daysToClose: parseInt(lead.daysToClose ?? 30, 10) || 30,
+    status: lead.status || 'Qualified'
+  };
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function log(action, detail='') {
   state.auditLog.unshift({ time:new Date().toISOString(), actor:'CLAWBOT', action, detail });
   if(state.auditLog.length > 500) state.auditLog = state.auditLog.slice(0,500);
@@ -602,16 +871,83 @@ function log(action, detail='') {
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
-function checkAuth() {
-  if(document.getElementById('auth-input').value === AUTH_PASS) {
+async function checkAuth(event) {
+  if(event) event.preventDefault();
+  const input = document.getElementById('auth-input');
+  const errorEl = document.getElementById('auth-error');
+  const meta = getAuthMeta();
+  const now = Date.now();
+  if(meta.lockedUntil && now < meta.lockedUntil) {
+    const mins = Math.ceil((meta.lockedUntil - now) / 60000);
+    errorEl.textContent = `LOCKED — retry in ${mins}m`;
+    return;
+  }
+  const secret = (input.value || '').trim();
+  if(!secret) {
+    errorEl.textContent = '⚠ ENTER ACCESS PHRASE';
+    return;
+  }
+  const valid = await verifySecret(secret);
+  if(valid) {
     sessionStorage.setItem('claw_auth','1');
+    sessionStorage.removeItem('claw_brief_seen');
+    setAuthMeta({ attempts: 0, lockedUntil: 0 });
+    errorEl.textContent = '';
+    input.value = '';
     document.getElementById('auth-gate').classList.add('hidden');
+    log('AUTH', 'Session unlocked');
+    maybeAutoBrief();
   } else {
-    document.getElementById('auth-error').textContent = '⚠ ACCESS DENIED — INVALID CREDENTIALS';
-    document.getElementById('auth-input').value = '';
+    meta.attempts = (meta.attempts || 0) + 1;
+    if(meta.attempts >= AUTH_CONFIG.maxAttempts) {
+      meta.lockedUntil = now + AUTH_CONFIG.lockMinutes * 60000;
+      meta.attempts = 0;
+      errorEl.textContent = `LOCKED — ${AUTH_CONFIG.lockMinutes}m cooldown`;
+      log('AUTH FAIL', 'Max attempts hit');
+    } else {
+      errorEl.textContent = `⚠ ACCESS DENIED — ${AUTH_CONFIG.maxAttempts - meta.attempts} attempt(s) left`;
+      log('AUTH FAIL', `Attempt ${meta.attempts}`);
+    }
+    setAuthMeta(meta);
+    input.value = '';
   }
 }
-function initAuth() { if(sessionStorage.getItem('claw_auth')==='1') document.getElementById('auth-gate').classList.add('hidden'); }
+function initAuth() {
+  const gate = document.getElementById('auth-gate');
+  const errorEl = document.getElementById('auth-error');
+  if(sessionStorage.getItem('claw_auth')==='1') {
+    gate.classList.add('hidden');
+    return;
+  }
+  const meta = getAuthMeta();
+  if(meta.lockedUntil && Date.now() < meta.lockedUntil) {
+    const mins = Math.ceil((meta.lockedUntil - Date.now())/60000);
+    errorEl.textContent = `LOCKED — retry in ${mins}m`;
+  }
+}
+function getAuthMeta() {
+  try {
+    return JSON.parse(localStorage.getItem(AUTH_META_KEY)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+function setAuthMeta(meta) {
+  localStorage.setItem(AUTH_META_KEY, JSON.stringify(meta));
+}
+async function verifySecret(secret) {
+  if(window.crypto?.subtle) {
+    const salted = `${AUTH_CONFIG.salt}:${secret}`;
+    const hash = await sha256Hex(salted);
+    return hash === AUTH_CONFIG.passHash;
+  }
+  return secret === AUTH_CONFIG.legacyPass;
+}
+async function sha256Hex(str) {
+  const data = new TextEncoder().encode(str);
+  const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 // ═══════════════════════════════════════════════════════
 // SCORING ENGINE
@@ -663,6 +999,75 @@ function decayLabel(lead) {
   return `<span class="decay-indicator decay-ok">✓ Fresh</span>`;
 }
 
+function getLeadEV(lead) {
+  const p = calcScore(lead)/100;
+  const m = STAGE_MULT[lead.status] || 0.3;
+  return p * (lead.value||0) * m;
+}
+function urgencyCoeff(lead) {
+  const map={1:0.9,2:1,3:1.2};
+  return map[lead.urgency] || 1;
+}
+function priorityScore(lead) {
+  const ev = getLeadEV(lead);
+  const days = Math.max(1, lead.daysToClose||30);
+  return Math.round((ev * urgencyCoeff(lead)) / days);
+}
+function priorityLabel(score) {
+  if(score>=8000) return {label:'Critical',cls:'priority-critical'};
+  if(score>=3000) return {label:'High',cls:'priority-high'};
+  if(score>=1200) return {label:'Med',cls:'priority-med'};
+  return {label:'Low',cls:'priority-low'};
+}
+function priorityBadge(lead) {
+  const meta = priorityLabel(priorityScore(lead));
+  return `<span class="priority-badge ${meta.cls}">${meta.label}</span>`;
+}
+function getNBAStack(lead) {
+  const primary = lead.nbaPrimary?.trim()?lead.nbaPrimary:(DEFAULT_NBA[lead.status]||'Advance to next stage');
+  const fallback = lead.nbaFallback?.trim()?lead.nbaFallback:'Follow up within 48h';
+  const escalation = lead.nbaEscalation?.trim()?lead.nbaEscalation:'Escalate to Roman';
+  return { primary, fallback, escalation };
+}
+function shortProfile(profile){
+  if(!profile) return 'Unknown';
+  if(profile.startsWith('Authority')) return 'Authority';
+  if(profile.startsWith('Analytical')) return 'Analytical';
+  if(profile.startsWith('Collaborative')) return 'Collaborative';
+  if(profile.startsWith('Political')) return 'Political';
+  return profile;
+}
+function getPsychTone(profile){
+  switch(profile){
+    case 'Authority-Driven (Senior Military / SES)': return 'Lead with doctrine references, show chain-of-command respect, cite Roman oversight.';
+    case 'Analytical (PM / Contracting Officer)': return 'Provide data, compliance hooks, contract vehicle clarity, measurable deltas.';
+    case 'Collaborative (Civilian Director)': return 'Frame as co-build, emphasize shared governance + crisis drills.';
+    case 'Political (Congressional / Policy)': return 'Prioritize constituent impact, bipartisan optics, immediate Roman escalation for GO/SES tiers.';
+    default: return 'Default to mission-first calm with evidence-backed confidence.';
+  }
+}
+function calculateRiskIndex(){
+  const active=state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  const decayCount=active.filter(l=>decayDays(l)>3).length;
+  const decayPercent=active.length?decayCount/active.length:0;
+  const conflicts=state.conflicts.filter(c=>c.status==='pending').length;
+  return Math.min(100, Math.round(decayPercent*60 + conflicts*10));
+}
+function setAutonomyMode(mode) {
+  state.autonomyMode = mode;
+  saveState();
+  log('MODE UPDATE', mode);
+  updateModeSelectorUI();
+  renderConstraintReminder();
+  toast(`Autonomy mode → ${mode}`);
+}
+function updateModeSelectorUI() {
+  document.querySelectorAll('#mode-selector .mode-btn').forEach(btn=>{
+    if(btn.dataset.mode===state.autonomyMode) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
 // ═══════════════════════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════════════════════
@@ -689,6 +1094,24 @@ function renderAll() {
   renderObjections();
   renderMeetings();
   renderAuditLog();
+  renderAgents();
+  renderConstraintsList();
+  renderConstraintReminder();
+  updateModeSelectorUI();
+  updateConflictBadge();
+  initSimulationForm();
+  maybeAutoBrief();
+}
+function renderConstraintReminder(){
+  const banner=document.getElementById('constraints-banner');
+  if(!banner) return;
+  banner.innerHTML=`<span>MODE: ${state.autonomyMode}</span> · ${HARD_CONSTRAINTS.slice(0,3).join(' · ')} · Compliance lock`;
+}
+function updateConflictBadge(){
+  const badge=document.getElementById('nav-conflict-badge');
+  if(!badge) return;
+  const pending=state.conflicts.filter(c=>c.status==='pending').length;
+  if(pending){badge.style.display='inline-flex';badge.textContent=pending;}else{badge.style.display='none';}
 }
 
 // ═══════════════════════════════════════════════════════
@@ -713,13 +1136,20 @@ function updateTopBar() {
 function renderAlerts() {
   const c = document.getElementById('alert-container');
   if(!c) return;
-  const stale = state.leads.filter(l=>!['Closed','Archived'].includes(l.status)&&decayDays(l)>3);
-  const html = stale.map(l=>`
-    <div class="alert-strip ${decayDays(l)>7?'danger':''}">
-      <span>⚠ DECAY ALERT: <strong>${l.name}</strong> (${l.org}) — ${Math.floor(decayDays(l))}d since last contact. Stage: ${l.status}</span>
+  const blocks = [];
+  state.leads.filter(l=>!['Closed','Archived'].includes(l.status)&&decayDays(l)>3).forEach(l=>{
+    blocks.push(`<div class="alert-strip ${decayDays(l)>7?'danger':''}">
+      <span>⚠ DECAY ALERT: <strong>${l.name}</strong> (${l.org}) — ${Math.floor(decayDays(l))}d idle. Stage: ${l.status}</span>
       <button class="btn sm warn" onclick="touchLead('${l.id}')">Log Touch</button>
-    </div>`).join('');
-  c.innerHTML = html;
+    </div>`);
+  });
+  state.conflicts.filter(c=>c.status==='pending').forEach(conf=>{
+    blocks.push(`<div class="alert-strip">
+      <span>⚔ CONFLICT: <strong>${conf.deal}</strong> — ${conf.agentA} vs ${conf.agentB}</span>
+      <button class="btn sm" onclick="resolveConflict('${conf.id}')">Resolve</button>
+    </div>`);
+  });
+  c.innerHTML = blocks.join('') || '';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -736,23 +1166,29 @@ function renderCommand() {
   document.getElementById('cmd-briefings').textContent = state.leads.filter(l=>l.status==='Briefing').length;
   document.getElementById('cmd-closed').textContent = state.leads.filter(l=>l.status==='Closed').length;
 
-  // Hot leads
-  const hot = [...state.leads].filter(l=>!['Closed','Archived'].includes(l.status))
-    .sort((a,b)=>calcScore(b)-calcScore(a)).slice(0,5);
+  const holdEl=document.getElementById('hold-info');
+  if(holdEl){
+    const holds=state.leads.filter(l=>l.manualHold);
+    holdEl.innerHTML = holds.length ? `<div class="info-panel"><strong>Manual Holds (${holds.length})</strong> — ${holds.map(h=>`${h.name} (${h.status})`).join(' · ')}. Outreach + stage transitions locked.</div>` : '';
+  }
+
+  const stack = [...active].sort((a,b)=>priorityScore(b)-priorityScore(a)).slice(0,5);
   const hotEl = document.getElementById('cmd-hot-leads');
-  if(hotEl) hotEl.innerHTML = hot.length ? hot.map(l=>`
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${scoreColor(calcScore(l))};padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+  if(hotEl) hotEl.innerHTML = stack.length ? stack.map(l=>{
+    const nba=getNBAStack(l);
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${scoreColor(calcScore(l))};padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;gap:12px">
       <div>
-        <div style="font-size:12px">${l.name}</div>
+        <div style="font-size:12px">${l.name} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</div>
         <div style="font-size:10px;color:var(--muted)">${l.org} · ${l.status} · ${decayLabel(l)}</div>
+        <div style="font-size:10px;color:#9ec5ff;margin-top:4px">NBA: ${nba.primary}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${scoreBadge(calcScore(l))}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        ${priorityBadge(l)}
         <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
       </div>
-    </div>`).join('') : '<div style="color:var(--muted);padding:12px;font-size:11px">No active leads. Add your first lead.</div>';
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);padding:12px;font-size:11px">No active leads. Add your first lead.</div>';
 
-  // Mini forecast
   const ev = calcEV();
   const fEl = document.getElementById('cmd-forecast-mini');
   if(fEl) fEl.innerHTML = `
@@ -771,7 +1207,6 @@ function renderCommand() {
       </div>
     </div>`;
 
-  // Mini objections
   const oEl = document.getElementById('cmd-objections-mini');
   if(oEl) {
     const top = state.objections.slice(0,3);
@@ -779,7 +1214,7 @@ function renderCommand() {
       <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);padding:10px 14px;margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
           <span style="font-size:11px;color:var(--warn)">${o.type}</span>
-          <span class="tag ${o.outcome==='converted'?'green':o.outcome==='lost'?'red':'amber'}">${o.outcome}</span>
+          <span class="tag ${o.outcome==='converted'?'green':o.outcome==='lost'?'red':o.outcome==='stalled'?'warn':'amber'}">${o.outcome}</span>
         </div>
         <div style="font-size:10px;color:#888">${o.counter||'No counter recorded'}</div>
       </div>`).join('') : '<div style="color:var(--muted);font-size:11px;padding:8px">No objections logged yet. Log patterns as you encounter them.</div>';
@@ -807,12 +1242,14 @@ function renderKanban() {
         ${leads.map(l=>{
           const score = calcScore(l);
           const dc = decayClass(l);
+          const nba = getNBAStack(l);
           return `<div class="kanban-card ${dc}" draggable="true" id="kc-${l.id}"
             ondragstart="dragStart('${l.id}')" ondragend="dragEnd()">
-            <div class="card-name">${l.name}</div>
+            <div class="card-name">${l.name} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</div>
             <div class="card-org">${l.org}</div>
             <div class="card-score-bar"><div class="card-score-fill" style="width:${score}%;background:${scoreColor(score)}"></div></div>
-            <div class="card-score-label">Score: ${score} · ${decayLabel(l)}</div>
+            <div class="card-score-label">${priorityBadge(l)} · ${decayLabel(l)}</div>
+            <div style="font-size:10px;color:#9ec5ff;margin-bottom:6px">NBA: ${nba.primary}</div>
             <div class="card-actions">
               <button class="btn sm" onclick="openEditLead('${l.id}')">Edit</button>
               <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
@@ -825,7 +1262,13 @@ function renderKanban() {
     col.addEventListener('dragleave', ()=>col.classList.remove('drag-over'));
     col.addEventListener('drop', e=>{
       e.preventDefault(); col.classList.remove('drag-over');
-      if(dragId){ const l=state.leads.find(x=>x.id===dragId); if(l){ log(`STAGE: ${l.name}`,`${l.status}→${stage}`); l.status=stage; l.lastTouch=new Date().toISOString(); saveState(); renderAll(); }}
+      if(dragId){
+        const l=state.leads.find(x=>x.id===dragId);
+        if(l){
+          if(l.manualHold){ toast('Manual hold active — stage locked'); return; }
+          if(l.status!==stage){ log(`STAGE: ${l.name}`,`${l.status}→${stage}`); l.status=stage; l.lastTouch=new Date().toISOString(); saveState(); renderAll(); }
+        }
+      }
     });
     board.appendChild(col);
   });
@@ -839,19 +1282,27 @@ function dragEnd(){ dragId=null; document.querySelectorAll('.kanban-card').forEa
 function renderLeadTable() {
   const tb = document.getElementById('lead-tbody');
   if(!tb) return;
-  const sorted = [...state.leads].sort((a,b)=>calcScore(b)-calcScore(a));
-  tb.innerHTML = sorted.map(l=>`
-    <tr>
+  const sorted = [...state.leads].sort((a,b)=>{
+    const diff = priorityScore(b)-priorityScore(a);
+    if(diff!==0) return diff;
+    return calcScore(b)-calcScore(a);
+  });
+  tb.innerHTML = sorted.map(l=>{
+    const nba=getNBAStack(l);
+    return `<tr>
       <td>${scoreBadge(calcScore(l))}</td>
-      <td>${l.name}</td>
+      <td>${l.name} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</td>
       <td>${l.org}</td>
       <td><span class="tag amber">${l.vertical}</span></td>
       <td>
-        <select onchange="changeStatus('${l.id}',this.value)" style="width:100%;max-width:140px">
+        <select onchange="changeStatus('${l.id}',this)" ${l.manualHold?'disabled':''} style="width:100%;max-width:140px">
           ${[...STAGES,'Archived'].map(s=>`<option${s===l.status?' selected':''}>${s}</option>`).join('')}
         </select>
       </td>
       <td>${decayLabel(l)}</td>
+      <td>${priorityBadge(l)}<div style="font-size:10px;color:var(--muted)">${priorityScore(l)} pts</div></td>
+      <td style="font-size:11px;color:#9ec5ff">${nba.primary}</td>
+      <td>${shortProfile(l.psychProfile)}</td>
       <td style="color:var(--accent)">${l.value?'$'+fmtNum(l.value):'—'}</td>
       <td><div style="display:flex;gap:3px;flex-wrap:wrap">
         <button class="btn sm" onclick="openEditLead('${l.id}')">Edit</button>
@@ -860,12 +1311,21 @@ function renderLeadTable() {
         <button class="btn sm warn" onclick="triggerSequenceForLead('${l.id}')">Outreach</button>
         <button class="btn sm danger" onclick="deleteLead('${l.id}')">Del</button>
       </div></td>
-    </tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:24px">No leads. Add your first lead.</td></tr>';
+    </tr>`;
+  }).join('') || '<tr><td colspan="11" style="color:var(--muted);text-align:center;padding:24px">No leads. Add your first lead.</td></tr>';
 }
 
-function changeStatus(id, status) {
+function changeStatus(id, selectEl) {
   const l=state.leads.find(x=>x.id===id);
-  if(l){ log(`STATUS: ${l.name}`,`→${status}`); l.status=status; l.lastTouch=new Date().toISOString(); saveState(); renderAll(); }
+  if(!l) return;
+  if(l.manualHold){ toast('Manual hold active — status locked'); if(selectEl) selectEl.value=l.status; return; }
+  const status=selectEl.value;
+  if(status===l.status) return;
+  log(`STATUS: ${l.name}`,`→${status}`);
+  l.status=status;
+  l.lastTouch=new Date().toISOString();
+  saveState();
+  renderAll();
 }
 function touchLead(id) {
   const l=state.leads.find(x=>x.id===id);
@@ -995,6 +1455,7 @@ function addTouchpoint(id){
 }
 function triggerSequenceForLead(id){
   const l=state.leads.find(x=>x.id===id);if(!l)return;
+  if(l.manualHold){toast('Manual hold active — outreach blocked');return;}
   state.campaigns.push({id:uid(),name:`Outreach → ${l.name}`,vertical:l.vertical,type:'Email Drip (D1→D4→D10)',brief:l.notes||'Trestleboard capability intro',created:new Date().toISOString(),status:'Active',steps:[{day:'D1',label:'First Touch',done:true},{day:'D4',label:'Follow-Up',done:false},{day:'D10',label:'Final Push',done:false}]});
   l.lastTouch=new Date().toISOString();
   log(`CAMPAIGN TRIGGERED: ${l.name}`,'Email Drip initiated');
@@ -1067,6 +1528,15 @@ function saveObjection(){
   saveState();closeModal('modal-objection');renderAll();toast('Objection logged');
 }
 function deleteObjection(id){state.objections=state.objections.filter(x=>x.id!==id);log('OBJ DELETED');saveState();renderAll();}
+function seedObjections(){
+  const seeds=[
+    {type:'Budget / No Vehicle',text:'"Budget is frozen unless we find the right vehicle."',counter:'Identify matching OTA, IDIQ, or sole-source authority. Frame as prototype under OTA.',vertical:'Federal DoD',outcome:'pending'},
+    {type:'Incumbent Vendor',text:'"Our incumbent already covers this."',counter:'AI-native vs legacy. 200+ variants vs 3-5. Augmentation framing, not replacement.',vertical:'Federal DoD',outcome:'pending'},
+    {type:'Timeline Pressure',text:'"We cannot wait 6 months."',counter:'Rapid deployment narrative. 30-day pilot. API-first = integration in days.',vertical:'Federal DoD',outcome:'pending'},
+    {type:'Clearance Requirements',text:'"Need cleared staff before we move."',counter:'Cleared staff on standby. Teaming partners available for TS/SCI lanes.',vertical:'Federal DoD',outcome:'pending'}
+  ];
+  state.objections = seeds.map(s=>({id:uid(),...s,created:new Date().toISOString()}));
+}
 
 // ═══════════════════════════════════════════════════════
 // MEETINGS
@@ -1120,6 +1590,189 @@ function exportLog(){
   dl('clawbot-audit.csv',csv,'text/csv');log('EXPORTED: Audit Log');
 }
 
+function renderAgents(){
+  const grid=document.getElementById('agent-grid');
+  if(grid){
+    grid.innerHTML=AGENT_DEFINITIONS.map(agent=>{
+      const output=state.agentOutputs[agent.id]||'Awaiting directive.';
+      const conflictFlag=state.conflicts.some(c=>c.status==='pending' && ((c.agentA||'').includes(agent.name)||(c.agentB||'').includes(agent.name)));
+      return `<div class="agent-card">
+        <div class="agent-meta">
+          <h4>${agent.name}</h4>
+          <span>${agent.confidence}% CONF</span>
+        </div>
+        <p>${agent.role}</p>
+        ${conflictFlag?'<span class="agent-conflict">CONFLICT PENDING</span>':''}
+        <p style="color:#cfd6ff">${output}</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn sm" onclick="logAgentOutput('${agent.id}')">Log Output</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const list=document.getElementById('conflict-list');
+  if(list){
+    if(!state.conflicts.length){list.innerHTML='<div style="color:var(--muted);padding:12px;font-size:11px">No conflicts logged.</div>';return;}
+    list.innerHTML=state.conflicts.map(conf=>`
+      <div class="conflict-item">
+        <h5>${conf.deal}</h5>
+        <p>${conf.agentA} ↔ ${conf.agentB}</p>
+        <p style="font-size:10px;color:var(--muted)">Options: ${conf.options||'—'}</p>
+        ${conf.resolution?`<p style="font-size:10px;color:var(--success)">Resolution: ${conf.resolution}</p>`:''}
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <span class="conflict-status ${conf.status==='pending'?'pending':'resolved'}">${conf.status}</span>
+          <button class="btn sm" onclick="openConflictModal('${conf.id}')">Edit</button>
+          ${conf.status==='pending'?`<button class="btn sm success" onclick="resolveConflict('${conf.id}')">Resolve</button>`:''}
+        </div>
+      </div>`).join('');
+  }
+}
+function logAgentOutput(agentId){
+  const agent=AGENT_DEFINITIONS.find(a=>a.id===agentId);
+  const note=prompt(`Log output for ${agent?.name||agentId}:`);
+  if(!note)return;
+  state.agentOutputs[agentId]=note;
+  log('AGENT OUTPUT',`${agent?.name||agentId}`);
+  saveState();renderAgents();toast('Agent output updated');
+}
+function syncAgentOutputs(){
+  log('AGENT SYNC','Manual refresh');
+  renderAgents();
+  toast('Agent grid refreshed');
+}
+function openConflictModal(id){
+  const conf=id?state.conflicts.find(c=>c.id===id):null;
+  document.getElementById('conflict-id').value=conf?.id||'';
+  document.getElementById('conflict-deal').value=conf?.deal||'';
+  document.getElementById('conflict-agent-a').value=conf?.agentA||'';
+  document.getElementById('conflict-agent-b').value=conf?.agentB||'';
+  document.getElementById('conflict-options').value=conf?.options||'';
+  document.getElementById('conflict-status').value=conf?.status||'pending';
+  document.getElementById('conflict-resolution').value=conf?.resolution||'';
+  openModal('modal-conflict');
+}
+function saveConflict(){
+  const id=document.getElementById('conflict-id').value;
+  const data={
+    deal:document.getElementById('conflict-deal').value.trim(),
+    agentA:document.getElementById('conflict-agent-a').value.trim(),
+    agentB:document.getElementById('conflict-agent-b').value.trim(),
+    options:document.getElementById('conflict-options').value.trim(),
+    status:document.getElementById('conflict-status').value,
+    resolution:document.getElementById('conflict-resolution').value.trim()
+  };
+  if(!data.deal||!data.agentA||!data.agentB){alert('Deal and agent positions required.');return;}
+  if(data.status==='resolved' && !data.resolution){alert('Resolution text required.');return;}
+  if(id){Object.assign(state.conflicts.find(c=>c.id===id),data);log('CONFLICT UPDATED',data.deal);}
+  else {state.conflicts.push({id:uid(),...data,created:new Date().toISOString()});log('CONFLICT LOGGED',data.deal);}
+  saveState();closeModal('modal-conflict');renderAll();
+}
+function resolveConflict(id){
+  const conf=state.conflicts.find(c=>c.id===id);if(!conf)return;
+  const note=prompt('Resolution / decision text:');
+  if(!note)return;
+  conf.status='resolved';
+  conf.resolution=note;
+  conf.resolvedAt=new Date().toISOString();
+  log('CONFLICT RESOLVED',conf.deal);
+  saveState();renderAll();toast('Conflict resolved');
+}
+
+function renderConstraintsList(){
+  const list=document.getElementById('constraints-list');
+  if(list) list.innerHTML = HARD_CONSTRAINTS.map((rule,idx)=>`<li>${rule}</li>`).join('');
+}
+function initSimulationForm(){
+  if(simulationInitialized) return;
+  applyScenarioPreset(document.getElementById('sim-scenario')?.value||'outreach_freq');
+  simulationInitialized=true;
+}
+function resetSimulationForm(){
+  const sel=document.getElementById('sim-scenario');
+  if(sel){sel.value='outreach_freq';}
+  applyScenarioPreset('outreach_freq');
+  document.getElementById('sim-output').textContent='Awaiting simulation...';
+}
+function applyScenarioPreset(key){
+  const preset=SCENARIO_PRESETS[key];
+  if(!preset) return;
+  const urgency=document.getElementById('sim-urgency');
+  const conv=document.getElementById('sim-conv');
+  const cycle=document.getElementById('sim-cycle');
+  const notes=document.getElementById('sim-notes');
+  if(urgency && preset.urgency) urgency.value=preset.urgency;
+  if(conv) conv.value=preset.convDelta;
+  if(cycle) cycle.value=preset.cycleDelta;
+  if(notes && preset.notes) notes.value=preset.notes;
+}
+function runSimulation(){
+  const scenarioKey=document.getElementById('sim-scenario').value;
+  const preset=SCENARIO_PRESETS[scenarioKey]||SCENARIO_PRESETS.custom;
+  const urgency=parseFloat(document.getElementById('sim-urgency').value)||1;
+  const conv=parseFloat(document.getElementById('sim-conv').value)||0;
+  const cycle=parseFloat(document.getElementById('sim-cycle').value)||0;
+  const notes=document.getElementById('sim-notes').value.trim()||preset.notes||'—';
+  const base=calcEV().base;
+  const before=Math.round(base);
+  const after=Math.round(before * (1 + conv/100) * urgency);
+  const avgCycle=calcAverageCycle();
+  const newCycle=Math.max(1, avgCycle + cycle);
+  const risk=Math.min(100, calculateRiskIndex() + (conv>15?5:0) + (cycle<0?-3:0));
+  const recommendation=scenarioKey==='custom'?'ASSESS':preset.recommendation;
+  const confidence=preset.confidence||70;
+  const output=`SCENARIO: ${preset.label}\nASSUMPTION CHANGES:\n• Urgency modifier ${urgency.toFixed(2)}\n• Conversion rate Δ ${conv}%\n• Cycle time Δ ${cycle}d\nMODELED IMPACT:\n• EV ${fmtCurrency(before)} → ${fmtCurrency(after)}\n• Conversion delta ${conv}%\n• Cycle time ${Math.round(avgCycle)}d → ${Math.round(newCycle)}d\n• Risk index ≈ ${risk}\nRECOMMENDATION: ${recommendation}\nCONFIDENCE: ${confidence}%\nAGENT NOTES: ${notes}`;
+  document.getElementById('sim-output').textContent=output;
+  log('SIMULATION RUN',preset.label);
+  toast('Simulation generated');
+}
+function calcAverageCycle(){
+  const active=state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  if(!active.length) return 30;
+  return active.reduce((sum,l)=>sum+(l.daysToClose||30),0)/active.length;
+}
+function fmtCurrency(n){return '$'+fmtNum(n||0);}
+
+function maybeAutoBrief(){
+  if(sessionStorage.getItem('claw_auth')==='1' && !sessionStorage.getItem('claw_brief_seen')){
+    openStrategicBrief();
+    sessionStorage.setItem('claw_brief_seen','1');
+  }
+}
+function openStrategicBrief(){
+  document.getElementById('strategic-brief-body').innerHTML=buildStrategicBrief();
+  openModal('modal-strategic');
+}
+function buildStrategicBrief(){
+  const now=new Date();
+  const active=state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  const hot=active.filter(l=>calcScore(l)>=70).length;
+  const warm=active.filter(l=>calcScore(l)>=50 && calcScore(l)<70).length;
+  const cool=active.length-hot-warm;
+  const ev=calcEV();
+  const decayAlerts=active.filter(l=>decayDays(l)>3).length;
+  const risk=calculateRiskIndex();
+  const conflicts=state.conflicts.filter(c=>c.status==='pending');
+  const priorityStack=[...active].sort((a,b)=>priorityScore(b)-priorityScore(a)).slice(0,5);
+  return `
+    <div class="dossier">
+      <h4>Situation</h4>
+      <p>${now.toLocaleString('en-US',{timeZone:'America/New_York'})} EST · Mode: ${state.autonomyMode} · Principal: Roman Lepekha</p>
+      <h4>Active Pipeline</h4>
+      <p>Total Leads: ${active.length} (Hot ${hot} / Warm ${warm} / Cool ${cool})<br>
+      Pipeline EV — Base: ${fmtCurrency(Math.round(ev.base))} · Upside: ${fmtCurrency(Math.round(ev.upside))}</p>
+      <h4>Risk Picture</h4>
+      <p>Risk Index: ${risk}/100 · Decay alerts: ${decayAlerts} · Pending conflicts: ${conflicts.length}</p>
+      <h4>Priority Actions</h4>
+      <p>${priorityStack.map(l=>`• ${l.name} (${l.status}) — ${priorityBadge(l)} · NBA: ${getNBAStack(l).primary}`).join('<br>')||'No active leads.'}</p>
+      <h4>Agent Conflict Flags</h4>
+      <p>${conflicts.length?conflicts.map(c=>`• ${c.deal}: ${c.agentA} vs ${c.agentB}`).join('<br>'):'None pending.'}</p>
+      <h4>Revenue Snapshot</h4>
+      <p>Conservative: ${fmtCurrency(Math.round(ev.conservative))}<br>
+      Base: ${fmtCurrency(Math.round(ev.base))}<br>
+      Upside: ${fmtCurrency(Math.round(ev.upside))}</p>
+    </div>`;
+}
+
 // ═══════════════════════════════════════════════════════
 // MODALS
 // ═══════════════════════════════════════════════════════
@@ -1129,10 +1782,14 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 function openAddLead(){
   document.getElementById('lead-modal-title').textContent='New Lead';
   document.getElementById('lead-id').value='';
-  ['lead-name','lead-org','lead-email','lead-notes'].forEach(id=>document.getElementById(id).value='');
+  ['lead-name','lead-org','lead-email','lead-notes','nba-primary','nba-fallback','nba-escalation'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('lead-value').value='';
   ['score-engagement','score-speed','score-fit'].forEach(id=>document.getElementById(id).value='5');
   document.getElementById('lead-status').value='Qualified';
+  document.getElementById('lead-psych').value='Unknown';
+  document.getElementById('lead-hold').checked=false;
+  document.getElementById('lead-urgency').value='2';
+  document.getElementById('lead-days').value='30';
   openModal('modal-lead');
 }
 function openEditLead(id){
@@ -1149,6 +1806,13 @@ function openEditLead(id){
   document.getElementById('score-engagement').value=l.scoreEngagement||5;
   document.getElementById('score-speed').value=l.scoreSpeed||5;
   document.getElementById('score-fit').value=l.scoreFit||5;
+  document.getElementById('lead-psych').value=l.psychProfile||'Unknown';
+  document.getElementById('lead-hold').checked=!!l.manualHold;
+  document.getElementById('lead-urgency').value=l.urgency||2;
+  document.getElementById('lead-days').value=l.daysToClose||30;
+  document.getElementById('nba-primary').value=l.nbaPrimary||'';
+  document.getElementById('nba-fallback').value=l.nbaFallback||'';
+  document.getElementById('nba-escalation').value=l.nbaEscalation||'';
   openModal('modal-lead');
 }
 function saveLead(){
@@ -1164,9 +1828,18 @@ function saveLead(){
     scoreEngagement:parseFloat(document.getElementById('score-engagement').value)||5,
     scoreSpeed:parseFloat(document.getElementById('score-speed').value)||5,
     scoreFit:parseFloat(document.getElementById('score-fit').value)||5,
+    psychProfile:document.getElementById('lead-psych').value,
+    manualHold:document.getElementById('lead-hold').checked,
+    urgency:parseInt(document.getElementById('lead-urgency').value,10)||2,
+    daysToClose:parseInt(document.getElementById('lead-days').value,10)||30,
+    nbaPrimary:document.getElementById('nba-primary').value.trim(),
+    nbaFallback:document.getElementById('nba-fallback').value.trim(),
+    nbaEscalation:document.getElementById('nba-escalation').value.trim(),
     lastTouch:new Date().toISOString()
   };
   if(!data.name||!data.org){alert('Name and Organization required.');return;}
+  if(data.urgency<1||data.urgency>3) data.urgency=2;
+  if(data.daysToClose<1) data.daysToClose=30;
   if(id){Object.assign(state.leads.find(l=>l.id===id),data);log(`UPDATED: ${data.name}`);}
   else{state.leads.push({id:uid(),...data});log(`LEAD ADDED: ${data.name}`,data.org);}
   saveState();closeModal('modal-lead');renderAll();
@@ -1175,41 +1848,51 @@ function saveLead(){
 function openDossier(leadId){
   const l=state.leads.find(x=>x.id===leadId);if(!l)return;
   const score=calcScore(l);
+  const nba=getNBAStack(l);
+  const ev=getLeadEV(l);
+  const tone=getPsychTone(l.psychProfile);
   document.getElementById('dossier-body').innerHTML=`
     <div class="dossier">
       <h4>Contact Intelligence</h4>
-      <p><strong>${l.name}</strong> · ${l.org}<br>${l.email||'No email on file'}<br>Vertical: ${l.vertical}</p>
+      <p><strong>${l.name}</strong> · ${l.org}${l.manualHold?' · <span class="hold-badge">Manual Hold</span>':''}<br>${l.email||'No email on file'}<br>Vertical: ${l.vertical}</p>
       <h4>Lead Score Analysis</h4>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
         ${scoreBadge(score)}
         <div style="flex:1;background:var(--border);height:8px;border-radius:4px;overflow:hidden"><div style="width:${score}%;height:100%;background:${scoreColor(score)}"></div></div>
       </div>
       <div class="score-breakdown">
-        <div class="score-row"><div class="score-row-label">Engagement Weight</div><div class="score-row-val">${l.scoreEngagement||5}/10</div></div>
+        <div class="score-row"><div class="score-row-label">Engagement</div><div class="score-row-val">${l.scoreEngagement||5}/10</div></div>
         <div class="score-row"><div class="score-row-label">Response Speed</div><div class="score-row-val">${l.scoreSpeed||5}/10</div></div>
         <div class="score-row"><div class="score-row-label">Strategic Fit</div><div class="score-row-val">${l.scoreFit||5}/10</div></div>
         <div class="score-row"><div class="score-row-label">Decay Status</div><div class="score-row-val">${decayLabel(l)}</div></div>
       </div>
       <h4>Revenue Projection</h4>
-      <p>Deal Value: <strong style="color:var(--accent)">${l.value?'$'+fmtNum(l.value):'Not set'}</strong><br>
-      Stage Multiplier: ${STAGE_MULT[l.status]||0.3}<br>
-      Expected Value: <strong style="color:var(--accent)">${l.value?'$'+fmtNum((score/100)*(l.value)*(STAGE_MULT[l.status]||0.3)):'—'}</strong></p>
+      <p>EV = Score% × Deal Value × Stage Mult<br>
+      = ${(score)}% × ${l.value?'$'+fmtNum(l.value):'—'} × ${(STAGE_MULT[l.status]||0.3)}<br>
+      Expected Value: <strong style="color:var(--accent)">${l.value?'$'+fmtNum(ev):'—'}</strong></p>
+      <h4>Priority & NBA Stack</h4>
+      <p>${priorityBadge(l)} · <strong>${priorityScore(l)} pts</strong> (Urgency ${l.urgency}/3 · ${l.daysToClose}d target)<br>
+      Primary: ${nba.primary}<br>
+      Fallback: ${nba.fallback}<br>
+      Escalation: ${nba.escalation}</p>
+      <h4>Psychological Profile & Tone</h4>
+      <p><strong>${l.psychProfile}</strong><br>${tone}</p>
       <h4>Intel / Pain Points</h4>
       <p>${l.notes||'No notes recorded.'}</p>
       <h4>Recommended Approach</h4>
       <p>${getApproach(l)}</p>
       <h4>Trestleboard Talking Points</h4>
       <p>• 99.7% faster narrative production than traditional contractors<br>
-      • 200+ controlled variants per brief — platform-specific, audience-tailored<br>
+      • 200+ controlled variants per brief — platform/audience-specific<br>
       • Sub-1% semantic drift with full source traceability<br>
-      • Human approval gates at every stage — IG and oversight-ready<br>
+      • Human approval gates at every stage — IG + oversight ready<br>
       • API-first architecture — zero rip-and-replace required<br>
-      • Principal-level access — direct engagement with Roman (CEO)</p>
+      • Principal-level access — Roman available for escalation</p>
       <h4>Pre-emptive Objection Counter</h4>
       <p>${getObjCounter(l)}</p>
       <h4>Next Action</h4>
       <p style="color:var(--accent)">${getNextAction(l)}</p>
-      <div style="margin-top:16px;font-size:9px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px">CLAWBOT v2.0 // TRESTLEBOARD GROUP LLC // INTERNAL // ${new Date().toLocaleString()}</div>
+      <div style="margin-top:16px;font-size:9px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px">CLAWBOT v2.1 // TRESTLEBOARD GROUP LLC // INTERNAL // ${new Date().toLocaleString()}</div>
     </div>`;
   openModal('modal-dossier');
 }
