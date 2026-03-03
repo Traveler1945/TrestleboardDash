@@ -3,386 +3,244 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trestleboard Ops Dashboard</title>
+<title>Clawbot // Trestleboard Revenue Ops</title>
 <style>
-  :root {
-    --bg: #080808;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: #222222;
-    --accent: #c8a84b;
-    --accent2: #e8c76b;
-    --danger: #cc3333;
-    --success: #2a7a2a;
-    --text: #e8e8e8;
-    --muted: #666666;
-    --tag-blue: #1a3a5c;
-    --tag-green: #1a3a2a;
-    --tag-red: #3a1a1a;
-    --tag-amber: #3a2a00;
-  }
-  /* ─── AUTH GATE ─── */
-  #auth-gate {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 99999;
-  }
-  #auth-gate.hidden { display: none; }
-  .auth-box {
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    padding: 40px 48px;
-    width: 360px;
-    text-align: center;
-  }
-  .auth-logo { font-size: 18px; letter-spacing: 4px; color: var(--accent); font-weight: bold; margin-bottom: 6px; }
-  .auth-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
-  .auth-box input[type="password"] {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 12px; font-family: inherit; font-size: 14px;
-    text-align: center; letter-spacing: 4px; margin-bottom: 16px;
-  }
-  .auth-box input[type="password"]:focus { outline: 1px solid var(--accent); }
-  .auth-btn {
-    width: 100%; background: none; border: 1px solid var(--accent);
-    color: var(--accent); padding: 10px; font-family: inherit; font-size: 12px;
-    letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
-  }
-  .auth-btn:hover { background: var(--accent); color: var(--bg); }
-  .auth-error { color: var(--danger); font-size: 11px; margin-top: 10px; min-height: 16px; }
+:root {
+  --bg: #060608;
+  --surface: #0e0e12;
+  --surface2: #16161c;
+  --border: #1e1e28;
+  --accent: #c8a84b;
+  --accent2: #e8c76b;
+  --danger: #cc3333;
+  --warn: #cc7722;
+  --success: #2a9a4a;
+  --text: #e0e0e8;
+  --muted: #555566;
+  --blue: #2a5aaa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 13px; min-height: 100vh; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    min-height: 100vh;
-  }
+/* AUTH */
+#auth-gate { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 99999; flex-direction: column; gap: 0; }
+#auth-gate.hidden { display: none; }
+.auth-box { background: var(--surface); border: 1px solid var(--accent); padding: 48px 56px; width: 400px; text-align: center; }
+.auth-logo { font-size: 22px; letter-spacing: 6px; color: var(--accent); font-weight: bold; margin-bottom: 4px; }
+.auth-tagline { font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.auth-div { border-top: 1px solid var(--border); margin: 24px 0; }
+.auth-box input[type="password"] { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 14px; font-family: inherit; font-size: 16px; text-align: center; letter-spacing: 6px; margin-bottom: 14px; }
+.auth-box input:focus { outline: 1px solid var(--accent); }
+.auth-btn { width: 100%; background: none; border: 1px solid var(--accent); color: var(--accent); padding: 12px; font-family: inherit; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.auth-btn:hover { background: var(--accent); color: var(--bg); }
+.auth-error { color: var(--danger); font-size: 10px; margin-top: 12px; min-height: 16px; letter-spacing: 1px; }
+.auth-classify { font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 32px; }
 
-  /* ─── TOP BAR ─── */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface);
-    border-bottom: 1px solid var(--accent);
-    padding: 12px 24px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .topbar .logo {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--accent);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-  .topbar .logo span { color: var(--text); }
-  .topbar .status-bar {
-    display: flex;
-    gap: 20px;
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .topbar .status-bar .live { color: #44cc44; }
-  .topbar .status-bar .live::before { content: '● '; }
+/* TOPBAR */
+.topbar { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 2px solid var(--accent); padding: 10px 24px; position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; flex-direction: column; }
+.logo-main { font-size: 15px; font-weight: bold; color: var(--accent); letter-spacing: 4px; }
+.logo-sub { font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-top: 1px; }
+.top-metrics { display: flex; gap: 24px; }
+.top-metric { text-align: center; }
+.top-metric-val { font-size: 16px; color: var(--accent); font-weight: bold; }
+.top-metric-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.top-right { display: flex; gap: 16px; align-items: center; font-size: 10px; color: var(--muted); }
+.live-dot::before { content: '● '; color: #44cc44; }
 
-  /* ─── NAV TABS ─── */
-  .nav {
-    display: flex;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-  }
-  .nav button {
-    background: none;
-    border: none;
-    color: var(--muted);
-    padding: 12px 20px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-  }
-  .nav button:hover { color: var(--text); }
-  .nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* NAV */
+.nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; overflow-x: auto; }
+.nav button { background: none; border: none; color: var(--muted); padding: 11px 18px; cursor: pointer; font-family: inherit; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav button:hover { color: var(--text); }
+.nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ─── MAIN LAYOUT ─── */
-  .main { padding: 24px; }
-  .section { display: none; }
-  .section.active { display: block; }
+/* MAIN */
+.main { padding: 24px; }
+.section { display: none; }
+.section.active { display: block; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.section-title { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); }
+.section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ─── SECTION HEADER ─── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .section-title {
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-  .section-actions { display: flex; gap: 8px; }
+/* BUTTONS */
+.btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 6px 14px; cursor: pointer; font-family: inherit; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { border-color: var(--accent); color: var(--accent); }
+.btn.primary:hover { background: var(--accent); color: var(--bg); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn.danger:hover { background: var(--danger); color: #fff; }
+.btn.success { border-color: var(--success); color: var(--success); }
+.btn.success:hover { background: var(--success); color: #fff; }
+.btn.warn { border-color: var(--warn); color: var(--warn); }
+.btn.sm { padding: 3px 8px; font-size: 9px; }
 
-  /* ─── BUTTONS ─── */
-  .btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 6px 14px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn.primary { border-color: var(--accent); color: var(--accent); }
-  .btn.primary:hover { background: var(--accent); color: var(--bg); }
-  .btn.danger { border-color: var(--danger); color: var(--danger); }
-  .btn.danger:hover { background: var(--danger); color: #fff; }
-  .btn.success { border-color: #44cc44; color: #44cc44; }
-  .btn.success:hover { background: #44cc44; color: var(--bg); }
-  .btn.sm { padding: 3px 8px; font-size: 10px; }
+/* STATS ROW */
+.stats-row { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--accent); padding: 16px 20px; flex: 1; min-width: 110px; }
+.stat-card.warn { border-top-color: var(--warn); }
+.stat-card.danger { border-top-color: var(--danger); }
+.stat-card.success { border-top-color: var(--success); }
+.stat-value { font-size: 26px; color: var(--accent); font-weight: bold; }
+.stat-card.warn .stat-value { color: var(--warn); }
+.stat-card.danger .stat-value { color: var(--danger); }
+.stat-card.success .stat-value { color: var(--success); }
+.stat-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+.stat-sub { font-size: 9px; color: var(--muted); margin-top: 2px; }
 
-  /* ─── KANBAN PIPELINE ─── */
-  .kanban {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 12px;
-  }
-  .kanban-col {
-    min-width: 200px;
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--accent);
-  }
-  .kanban-col-header {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .kanban-col-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
-  .kanban-col-count { font-size: 10px; color: var(--muted); }
-  .kanban-col-body { padding: 8px; min-height: 120px; }
-  .kanban-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 10px;
-    margin-bottom: 8px;
-    cursor: grab;
-    transition: border-color 0.2s;
-  }
-  .kanban-card:hover { border-color: var(--accent); }
-  .kanban-card.dragging { opacity: 0.4; }
-  .kanban-col.drag-over { border-color: var(--accent); background: #1a1500; }
-  .card-name { font-size: 12px; margin-bottom: 4px; }
-  .card-org { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
-  .card-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+/* KANBAN */
+.kanban { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; }
+.kanban-col { min-width: 180px; flex: 1; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--accent); }
+.kanban-col-header { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.kanban-col-title { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.kanban-col-count { font-size: 9px; color: var(--muted); }
+.kanban-col-body { padding: 8px; min-height: 100px; }
+.kanban-card { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--muted); padding: 10px; margin-bottom: 8px; cursor: grab; transition: all 0.2s; }
+.kanban-card:hover { border-color: var(--accent); }
+.kanban-card.dragging { opacity: 0.3; }
+.kanban-card.decay-hot { border-left-color: var(--danger); }
+.kanban-card.decay-warn { border-left-color: var(--warn); }
+.kanban-card.decay-ok { border-left-color: var(--success); }
+.kanban-col.drag-over { background: #1a1500; border-color: var(--accent); }
+.card-name { font-size: 12px; margin-bottom: 2px; }
+.card-org { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+.card-score-bar { height: 3px; background: var(--border); margin-bottom: 6px; border-radius: 2px; overflow: hidden; }
+.card-score-fill { height: 100%; transition: width 0.3s; }
+.card-score-label { font-size: 9px; color: var(--muted); margin-bottom: 6px; }
+.card-actions { display: flex; gap: 3px; flex-wrap: wrap; }
 
-  /* ─── LEAD TABLE ─── */
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-  }
-  tr:hover td { background: var(--surface2); }
+/* TABLES */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 8px 12px; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 12px; }
+tr:hover td { background: var(--surface2); }
 
-  /* ─── TAGS ─── */
-  .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border: 1px solid;
-  }
-  .tag.blue { background: var(--tag-blue); border-color: #2a5a8c; color: #6aa8dc; }
-  .tag.green { background: var(--tag-green); border-color: #2a6a3a; color: #6acc8c; }
-  .tag.red { background: var(--tag-red); border-color: #6a2a2a; color: #cc6a6a; }
-  .tag.amber { background: var(--tag-amber); border-color: #5a4000; color: var(--accent); }
-  .tag.gray { background: #1a1a1a; border-color: #333; color: var(--muted); }
+/* SCORE BADGE */
+.score-badge { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 22px; font-size: 11px; font-weight: bold; border: 1px solid; }
+.score-hot { background: #200a0a; border-color: #cc3333; color: #ff6666; }
+.score-warm { background: #201000; border-color: var(--warn); color: #ffaa44; }
+.score-cool { background: #0a1a0a; border-color: var(--success); color: #66cc88; }
+.score-cold { background: var(--surface2); border-color: var(--border); color: var(--muted); }
 
-  /* ─── STATUS DROPDOWN ─── */
-  select {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 4px 8px;
-    font-family: inherit;
-    font-size: 11px;
-    cursor: pointer;
-  }
-  select:focus { outline: 1px solid var(--accent); }
+/* TAGS */
+.tag { display: inline-block; padding: 2px 7px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; border: 1px solid; }
+.tag.amber { background: #1a1200; border-color: #5a3a00; color: var(--accent); }
+.tag.green { background: #0a180a; border-color: #2a6a3a; color: #6acc8c; }
+.tag.red { background: #180a0a; border-color: #6a2a2a; color: #cc6a6a; }
+.tag.blue { background: #0a1020; border-color: #2a4a8a; color: #6a9acc; }
+.tag.gray { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+.tag.warn { background: #180f00; border-color: #6a3a00; color: #cc8833; }
 
-  /* ─── MODAL ─── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    width: 520px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-title { color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-size: 13px; }
-  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; }
-  .modal-body { padding: 20px; }
-  .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+/* DECAY */
+.decay-indicator { font-size: 9px; letter-spacing: 1px; }
+.decay-hot { color: var(--danger); }
+.decay-warn { color: var(--warn); }
+.decay-ok { color: var(--success); }
 
-  /* ─── FORM ELEMENTS ─── */
-  .form-group { margin-bottom: 14px; }
-  label { display: block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  input, textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 10px;
-    font-family: inherit;
-    font-size: 12px;
-  }
-  input:focus, textarea:focus { outline: 1px solid var(--accent); }
-  textarea { resize: vertical; min-height: 80px; }
+/* FORECAST */
+.forecast-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.forecast-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; text-align: center; }
+.forecast-card.conservative { border-top: 2px solid var(--muted); }
+.forecast-card.base { border-top: 2px solid var(--accent); }
+.forecast-card.upside { border-top: 2px solid var(--success); }
+.forecast-val { font-size: 24px; font-weight: bold; color: var(--accent); }
+.forecast-card.conservative .forecast-val { color: var(--muted); }
+.forecast-card.upside .forecast-val { color: var(--success); }
+.forecast-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.forecast-desc { font-size: 10px; color: var(--muted); margin-top: 8px; }
 
-  /* ─── CONTENT QUEUE CARDS ─── */
-  .queue-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .queue-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .queue-card-title { font-size: 13px; margin-bottom: 4px; }
-  .queue-card-meta { font-size: 10px; color: var(--muted); }
-  .queue-card-body { font-size: 12px; color: #aaa; margin-bottom: 12px; line-height: 1.6; }
-  .queue-card-actions { display: flex; gap: 8px; }
-  .channels { display: flex; gap: 6px; margin-top: 8px; }
-  .channel-toggle {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 3px 10px;
-    font-size: 10px;
-    cursor: pointer;
-    font-family: inherit;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .channel-toggle.on { border-color: var(--accent); color: var(--accent); background: var(--tag-amber); }
+/* PIPELINE TABLE */
+.pipeline-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.pipeline-stage-label { font-size: 10px; color: var(--muted); width: 120px; flex-shrink: 0; padding-top: 6px; letter-spacing: 1px; }
+.pipeline-bar-wrap { flex: 1; background: var(--surface2); height: 28px; position: relative; border: 1px solid var(--border); }
+.pipeline-bar-fill { height: 100%; background: var(--accent); opacity: 0.6; transition: width 0.4s; }
+.pipeline-bar-label { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text); }
+.pipeline-ev { width: 90px; text-align: right; font-size: 11px; color: var(--accent); padding-top: 6px; }
 
-  /* ─── AUDIT LOG ─── */
-  .log-entry {
-    display: flex;
-    gap: 16px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-  }
-  .log-time { color: var(--muted); white-space: nowrap; min-width: 140px; }
-  .log-actor { color: var(--accent); min-width: 80px; }
-  .log-action { color: var(--text); }
+/* OBJECTION REGISTRY */
+.obj-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--warn); padding: 14px 16px; margin-bottom: 10px; }
+.obj-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.obj-type { font-size: 11px; color: var(--warn); letter-spacing: 1px; }
+.obj-vertical { font-size: 9px; color: var(--muted); }
+.obj-counter { font-size: 11px; color: #aaa; margin-bottom: 8px; line-height: 1.6; }
+.obj-outcome { display: flex; gap: 16px; font-size: 9px; }
+.obj-outcome span { color: var(--muted); }
+.obj-outcome .win { color: var(--success); }
+.obj-outcome .loss { color: var(--danger); }
 
-  /* ─── STATS ROW ─── */
-  .stats-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--accent);
-    padding: 16px 20px;
-    flex: 1;
-    min-width: 120px;
-  }
-  .stat-value { font-size: 28px; color: var(--accent); font-weight: bold; }
-  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+/* CAMPAIGN */
+.sequence-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+.sequence-header { display: flex; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.sequence-title { font-size: 12px; margin-bottom: 3px; }
+.sequence-meta { font-size: 10px; color: var(--muted); }
+.sequence-steps { display: flex; gap: 0; margin-bottom: 12px; }
+.step { flex: 1; padding: 7px 4px; border: 1px solid var(--border); font-size: 9px; text-align: center; color: var(--muted); background: var(--surface2); }
+.step.done { border-color: var(--success); color: var(--success); background: #0a180a; }
+.step.active { border-color: var(--accent); color: var(--accent); background: #1a1200; }
+.sequence-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* ─── OUTREACH SEQUENCE ─── */
-  .sequence-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .sequence-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
-  .sequence-title { font-size: 13px; }
-  .sequence-steps { display: flex; gap: 0; margin-bottom: 12px; }
-  .step {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid var(--border);
-    font-size: 10px;
-    text-align: center;
-    color: var(--muted);
-    background: var(--surface2);
-  }
-  .step.done { border-color: #44cc44; color: #44cc44; background: #0a1a0a; }
-  .step.active { border-color: var(--accent); color: var(--accent); background: var(--tag-amber); }
-  .sequence-actions { display: flex; gap: 8px; }
+/* CONTENT QUEUE */
+.queue-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 16px; margin-bottom: 10px; }
+.queue-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.queue-card-title { font-size: 12px; margin-bottom: 3px; }
+.queue-card-meta { font-size: 10px; color: var(--muted); }
+.queue-card-body { font-size: 11px; color: #999; margin-bottom: 10px; line-height: 1.6; }
+.queue-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* ─── TOAST ─── */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    padding: 12px 20px;
-    font-size: 12px;
-    letter-spacing: 1px;
-    z-index: 9999;
-    display: none;
-  }
+/* MEETINGS */
+.meeting-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+.meeting-header { display: flex; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
 
-  /* ─── DOSSIER VIEW ─── */
-  .dossier { background: var(--surface2); border: 1px solid var(--border); padding: 16px; font-size: 12px; line-height: 1.8; }
-  .dossier h4 { color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-size: 11px; margin: 12px 0 6px; }
-  .dossier p { color: #aaa; }
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--accent); width: 540px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.modal-title { color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-size: 12px; }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+.modal-body { padding: 20px; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+input, textarea, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-family: inherit; font-size: 12px; }
+input:focus, textarea:focus, select:focus { outline: 1px solid var(--accent); }
+textarea { resize: vertical; min-height: 80px; }
+select { cursor: pointer; }
+
+/* ALERT STRIP */
+.alert-strip { background: #1a0a00; border: 1px solid var(--warn); border-left: 4px solid var(--warn); padding: 10px 16px; margin-bottom: 16px; font-size: 11px; color: var(--warn); display: flex; justify-content: space-between; align-items: center; }
+.alert-strip.danger { background: #1a0000; border-color: var(--danger); border-left-color: var(--danger); color: var(--danger); }
+
+/* AUDIT LOG */
+.log-entry { display: flex; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 10px; }
+.log-time { color: var(--muted); white-space: nowrap; min-width: 140px; }
+.log-actor { color: var(--accent); min-width: 80px; }
+.log-action { color: var(--text); }
+
+/* DOSSIER */
+.dossier { background: var(--surface2); border: 1px solid var(--border); padding: 16px; font-size: 12px; line-height: 1.8; }
+.dossier h4 { color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; margin: 14px 0 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.dossier p { color: #aaa; }
+
+/* SCORE BREAKDOWN */
+.score-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.score-row { background: var(--surface2); border: 1px solid var(--border); padding: 8px 12px; }
+.score-row-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+.score-row-val { font-size: 14px; color: var(--accent); font-weight: bold; margin-top: 2px; }
+
+/* TOAST */
+#toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; font-size: 11px; letter-spacing: 1px; z-index: 9999; display: none; max-width: 320px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+@media (max-width: 600px) {
+  .forecast-grid { grid-template-columns: 1fr; }
+  .top-metrics { display: none; }
+  .stats-row .stat-card { min-width: 80px; }
+}
 </style>
 </head>
 <body>
@@ -390,191 +248,217 @@
 <!-- AUTH GATE -->
 <div id="auth-gate">
   <div class="auth-box">
-    <div class="auth-logo">TRESTLEBOARD</div>
-    <div class="auth-sub">OPS COMMAND // RESTRICTED ACCESS</div>
-    <input type="password" id="auth-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkAuth()">
+    <div class="auth-logo">CLAWBOT</div>
+    <div class="auth-tagline">Autonomous Revenue Operations Engine</div>
+    <div class="auth-tagline" style="color:#333;margin-top:2px">Trestleboard Group LLC // Internal</div>
+    <div class="auth-div"></div>
+    <input type="password" id="auth-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkAuth()" autofocus>
     <button class="auth-btn" onclick="checkAuth()">AUTHENTICATE</button>
     <div class="auth-error" id="auth-error"></div>
   </div>
+  <div class="auth-classify" style="margin-top:20px">CLASSIFICATION: INTERNAL OPERATIONS // RESTRICTED ACCESS</div>
 </div>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo">TRESTLEBOARD <span>// OPS COMMAND</span></div>
-  <div class="status-bar">
-    <span class="live" id="live-time">LIVE</span>
+  <div class="logo">
+    <div class="logo-main">CLAWBOT <span style="color:var(--muted);font-size:11px">// TRESTLEBOARD</span></div>
+    <div class="logo-sub">AUTONOMOUS REVENUE OPERATIONS ENGINE · v2.0</div>
+  </div>
+  <div class="top-metrics">
+    <div class="top-metric"><div class="top-metric-val" id="tm-pipeline">$0</div><div class="top-metric-lbl">Pipeline EV</div></div>
+    <div class="top-metric"><div class="top-metric-val" id="tm-leads">0</div><div class="top-metric-lbl">Active Leads</div></div>
+    <div class="top-metric"><div class="top-metric-val" id="tm-decay" style="color:var(--danger)">0</div><div class="top-metric-lbl">Decay Risk</div></div>
+  </div>
+  <div class="top-right">
+    <span class="live-dot">LIVE</span>
     <span id="current-time"></span>
-    <span>SAM.GOV: <span style="color:#cc8833">PENDING</span></span>
-    <span>LEADS: <span id="top-lead-count" style="color:var(--accent)">0</span></span>
+    <span>SAM.GOV <span style="color:var(--warn)">●</span></span>
+    <span>GSA <span style="color:var(--muted)">●</span></span>
   </div>
 </div>
 
 <!-- NAV -->
 <div class="nav">
-  <button class="active" onclick="showSection('pipeline')">Pipeline</button>
-  <button onclick="showSection('leads')">Leads</button>
-  <button onclick="showSection('outreach')">Outreach</button>
-  <button onclick="showSection('content')">Content Queue</button>
-  <button onclick="showSection('meetings')">Meetings</button>
-  <button onclick="showSection('auditlog')">Audit Log</button>
+  <button class="active" onclick="showSection('command',this)">Command</button>
+  <button onclick="showSection('pipeline',this)">Pipeline</button>
+  <button onclick="showSection('leads',this)">Leads</button>
+  <button onclick="showSection('forecast',this)">Forecast</button>
+  <button onclick="showSection('outreach',this)">Outreach</button>
+  <button onclick="showSection('content',this)">Content Queue</button>
+  <button onclick="showSection('objections',this)">Objections</button>
+  <button onclick="showSection('meetings',this)">Meetings</button>
+  <button onclick="showSection('auditlog',this)">Audit Log</button>
 </div>
 
 <div class="main">
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- PIPELINE -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="section active" id="section-pipeline">
-    <div class="section-header">
-      <div class="section-title">Deal Pipeline</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="openAddLead()">+ Add Lead</button>
-      </div>
+<!-- ══ COMMAND CENTER ══ -->
+<div class="section active" id="section-command">
+  <div class="section-header">
+    <div class="section-title">Command Center</div>
+    <div class="section-actions">
+      <button class="btn primary" onclick="openAddLead()">+ Add Lead</button>
+      <button class="btn" onclick="runIntelligenceScan()">⟳ Intelligence Scan</button>
     </div>
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total Leads</div></div>
-      <div class="stat-card"><div class="stat-value" id="stat-active">0</div><div class="stat-label">Active</div></div>
-      <div class="stat-card"><div class="stat-value" id="stat-briefing">0</div><div class="stat-label">Briefings</div></div>
-      <div class="stat-card"><div class="stat-value" id="stat-closed">0</div><div class="stat-label">Closed</div></div>
-    </div>
-    <div class="kanban" id="kanban-board"></div>
   </div>
+  <div id="alert-container"></div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-value" id="cmd-total">0</div><div class="stat-label">Total Leads</div></div>
+    <div class="stat-card success"><div class="stat-value" id="cmd-active">0</div><div class="stat-label">Active</div></div>
+    <div class="stat-card warn"><div class="stat-value" id="cmd-decay">0</div><div class="stat-label">Decay Risk</div></div>
+    <div class="stat-card danger"><div class="stat-value" id="cmd-stale">0</div><div class="stat-label">Stale 72h+</div></div>
+    <div class="stat-card"><div class="stat-value" id="cmd-briefings">0</div><div class="stat-label">Briefings</div></div>
+    <div class="stat-card success"><div class="stat-value" id="cmd-closed">0</div><div class="stat-label">Closed</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">Hot Leads — Immediate Action Required</div>
+      <div id="cmd-hot-leads"></div>
+    </div>
+    <div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">Revenue Forecast — Current Cycle</div>
+      <div id="cmd-forecast-mini"></div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">Top Objection Patterns This Cycle</div>
+  <div id="cmd-objections-mini"></div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- LEADS -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="section" id="section-leads">
-    <div class="section-header">
-      <div class="section-title">Lead Registry</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="openAddLead()">+ New Lead</button>
-        <button class="btn" onclick="exportLeads()">Export CSV</button>
-      </div>
-    </div>
-    <table id="lead-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Organization</th>
-          <th>Vertical</th>
-          <th>Status</th>
-          <th>Last Touch</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="lead-tbody"></tbody>
-    </table>
+<!-- ══ PIPELINE ══ -->
+<div class="section" id="section-pipeline">
+  <div class="section-header">
+    <div class="section-title">Deal Pipeline</div>
+    <div class="section-actions"><button class="btn primary" onclick="openAddLead()">+ Add Lead</button></div>
   </div>
+  <div class="kanban" id="kanban-board"></div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- OUTREACH -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="section" id="section-outreach">
-    <div class="section-header">
-      <div class="section-title">Outreach Campaigns</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="openNewCampaign()">+ Trigger Campaign</button>
-      </div>
+<!-- ══ LEADS ══ -->
+<div class="section" id="section-leads">
+  <div class="section-header">
+    <div class="section-title">Lead Registry</div>
+    <div class="section-actions">
+      <button class="btn primary" onclick="openAddLead()">+ New Lead</button>
+      <button class="btn" onclick="exportLeads()">Export CSV</button>
     </div>
-    <div id="campaigns-list"></div>
   </div>
+  <table>
+    <thead><tr>
+      <th>Score</th><th>Name</th><th>Organization</th><th>Vertical</th>
+      <th>Status</th><th>Decay</th><th>Deal Value</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="lead-tbody"></tbody>
+  </table>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- CONTENT QUEUE -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="section" id="section-content">
-    <div class="section-header">
-      <div class="section-title">Content Queue</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="openNewBrief()">+ Submit Brief</button>
-      </div>
-    </div>
-    <div id="content-list"></div>
+<!-- ══ FORECAST ══ -->
+<div class="section" id="section-forecast">
+  <div class="section-header">
+    <div class="section-title">Revenue Forecast</div>
+    <div class="section-actions"><button class="btn" onclick="renderForecast()">⟳ Recalculate</button></div>
   </div>
+  <div class="forecast-grid">
+    <div class="forecast-card conservative"><div class="forecast-val" id="fc-conservative">$0</div><div class="forecast-label">Conservative</div><div class="forecast-desc">P(close) × 0.7</div></div>
+    <div class="forecast-card base"><div class="forecast-val" id="fc-base">$0</div><div class="forecast-label">Base Case</div><div class="forecast-desc">Probability-weighted EV</div></div>
+    <div class="forecast-card upside"><div class="forecast-val" id="fc-upside">$0</div><div class="forecast-label">Upside</div><div class="forecast-desc">P(close) × 1.3</div></div>
+  </div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;text-transform:uppercase">Stage-by-Stage Expected Value</div>
+  <div id="pipeline-bars"></div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:20px 0 12px;text-transform:uppercase">Individual Lead EV Breakdown</div>
+  <table>
+    <thead><tr><th>Lead</th><th>Stage</th><th>Score</th><th>Deal Value</th><th>P(Close)</th><th>Stage Mult</th><th>EV</th></tr></thead>
+    <tbody id="forecast-tbody"></tbody>
+  </table>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- MEETINGS -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="section" id="section-meetings">
-    <div class="section-header">
-      <div class="section-title">Briefings & Meetings</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="openScheduleMeeting()">+ Schedule Briefing</button>
-      </div>
-    </div>
-    <div id="meetings-list"></div>
+<!-- ══ OUTREACH ══ -->
+<div class="section" id="section-outreach">
+  <div class="section-header">
+    <div class="section-title">Campaign Orchestration</div>
+    <div class="section-actions"><button class="btn primary" onclick="openNewCampaign()">+ Trigger Campaign</button></div>
   </div>
+  <div id="campaigns-list"></div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- AUDIT LOG -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="section" id="section-auditlog">
-    <div class="section-header">
-      <div class="section-title">Audit Log</div>
-      <div class="section-actions">
-        <button class="btn" onclick="clearLog()">Clear Log</button>
-        <button class="btn" onclick="exportLog()">Export</button>
-      </div>
-    </div>
-    <div id="audit-log-list"></div>
+<!-- ══ CONTENT QUEUE ══ -->
+<div class="section" id="section-content">
+  <div class="section-header">
+    <div class="section-title">Content Queue</div>
+    <div class="section-actions"><button class="btn primary" onclick="openNewBrief()">+ Submit Brief</button></div>
   </div>
+  <div id="content-list"></div>
+</div>
+
+<!-- ══ OBJECTIONS ══ -->
+<div class="section" id="section-objections">
+  <div class="section-header">
+    <div class="section-title">Objection Intelligence Registry</div>
+    <div class="section-actions"><button class="btn primary" onclick="openAddObjection()">+ Log Objection</button></div>
+  </div>
+  <div id="objections-list"></div>
+</div>
+
+<!-- ══ MEETINGS ══ -->
+<div class="section" id="section-meetings">
+  <div class="section-header">
+    <div class="section-title">Briefings & Meetings</div>
+    <div class="section-actions"><button class="btn primary" onclick="openScheduleMeeting()">+ Schedule Briefing</button></div>
+  </div>
+  <div id="meetings-list"></div>
+</div>
+
+<!-- ══ AUDIT LOG ══ -->
+<div class="section" id="section-auditlog">
+  <div class="section-header">
+    <div class="section-title">Audit Log</div>
+    <div class="section-actions">
+      <button class="btn" onclick="clearLog()">Clear</button>
+      <button class="btn" onclick="exportLog()">Export</button>
+    </div>
+  </div>
+  <div id="audit-log-list"></div>
+</div>
 
 </div><!-- /main -->
 
-<!-- ══════════════════════════════════════════════════════ -->
-<!-- MODALS -->
-<!-- ══════════════════════════════════════════════════════ -->
+<!-- ══════════ MODALS ══════════ -->
 
 <!-- ADD/EDIT LEAD -->
 <div class="modal-overlay" id="modal-lead">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="lead-modal-title">New Lead</div>
-      <button class="modal-close" onclick="closeModal('modal-lead')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="lead-modal-title">New Lead</div><button class="modal-close" onclick="closeModal('modal-lead')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="lead-id">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="lead-name" placeholder="e.g. Col. James Wright">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Full Name</label><input type="text" id="lead-name" placeholder="Col. James Wright"></div>
+        <div class="form-group"><label>Organization</label><input type="text" id="lead-org" placeholder="DoD Public Affairs"></div>
       </div>
-      <div class="form-group">
-        <label>Organization</label>
-        <input type="text" id="lead-org" placeholder="e.g. DoD Public Affairs">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Vertical</label>
+          <select id="lead-vertical">
+            <option>Federal DoD</option><option>IC / Special Programs</option><option>SOCOM</option>
+            <option>Federal Civilian</option><option>Municipal Gov</option><option>Defense Contractor</option>
+            <option>Law Firm / Patent</option><option>Congressional</option><option>Corporate Comms</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="lead-status">
+            <option>Qualified</option><option>Briefing</option><option>Proposal</option>
+            <option>Negotiation</option><option>Verbal</option><option>Closed</option><option>Archived</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Vertical</label>
-        <select id="lead-vertical" style="width:100%">
-          <option value="Federal DoD">Federal - DoD</option>
-          <option value="Federal Civilian">Federal - Civilian</option>
-          <option value="Municipal Gov">Municipal Government</option>
-          <option value="Defense Contractor">Defense Contractor</option>
-          <option value="Law Firm">Law Firm / Patent</option>
-          <option value="Congressional">Congressional Office</option>
-          <option value="Corporate Comms">Corporate Comms</option>
-          <option value="Other">Other</option>
-        </select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Contact Email</label><input type="email" id="lead-email" placeholder="name@agency.gov"></div>
+        <div class="form-group"><label>Est. Deal Value ($)</label><input type="number" id="lead-value" placeholder="250000"></div>
       </div>
-      <div class="form-group">
-        <label>Contact Email</label>
-        <input type="email" id="lead-email" placeholder="name@org.gov">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="form-group"><label>Engagement (0-10)</label><input type="number" id="score-engagement" min="0" max="10" placeholder="5"></div>
+        <div class="form-group"><label>Response Speed (0-10)</label><input type="number" id="score-speed" min="0" max="10" placeholder="5"></div>
+        <div class="form-group"><label>Strategic Fit (0-10)</label><input type="number" id="score-fit" min="0" max="10" placeholder="5"></div>
       </div>
-      <div class="form-group">
-        <label>Status</label>
-        <select id="lead-status" style="width:100%">
-          <option value="Identified">Identified</option>
-          <option value="Contacted">Contacted</option>
-          <option value="Responded">Responded</option>
-          <option value="Briefing Scheduled">Briefing Scheduled</option>
-          <option value="Proposal Sent">Proposal Sent</option>
-          <option value="Closed">Closed</option>
-          <option value="Archived">Archived</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Notes / Pain Points</label>
-        <textarea id="lead-notes" placeholder="Known pain points, recent public statements, relevant context..."></textarea>
-      </div>
+      <div class="form-group"><label>Intel / Pain Points / Notes</label><textarea id="lead-notes" placeholder="Known procurement timelines, pain points, recent public statements, budget signals..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-lead')">Cancel</button>
@@ -583,57 +467,30 @@
   </div>
 </div>
 
-<!-- DOSSIER MODAL -->
+<!-- DOSSIER -->
 <div class="modal-overlay" id="modal-dossier">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Briefing Dossier</div>
-      <button class="modal-close" onclick="closeModal('modal-dossier')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Briefing Dossier</div><button class="modal-close" onclick="closeModal('modal-dossier')">✕</button></div>
     <div class="modal-body" id="dossier-body"></div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-dossier')">Close</button>
-      <button class="btn primary" onclick="exportDossier()">Export PDF</button>
-    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-dossier')">Close</button><button class="btn primary" onclick="window.print()">Print / Export</button></div>
   </div>
 </div>
 
-<!-- NEW CAMPAIGN MODAL -->
+<!-- CAMPAIGN -->
 <div class="modal-overlay" id="modal-campaign">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Trigger Campaign</div>
-      <button class="modal-close" onclick="closeModal('modal-campaign')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Trigger Campaign</div><button class="modal-close" onclick="closeModal('modal-campaign')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Campaign Name</label>
-        <input type="text" id="camp-name" placeholder="e.g. DoD PAO Q1 Outreach">
+      <div class="form-group"><label>Campaign Name</label><input type="text" id="camp-name" placeholder="DoD PAO Q1 Outreach"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Target Vertical</label>
+          <select id="camp-vertical"><option>Federal DoD</option><option>IC / Special Programs</option><option>SOCOM</option><option>Federal Civilian</option><option>Municipal Gov</option><option>Defense Contractor</option><option>All</option></select>
+        </div>
+        <div class="form-group"><label>Sequence Type</label>
+          <select id="camp-type"><option>Email Drip (D1→D4→D10)</option><option>LinkedIn Outreach</option><option>Cold Call Script</option><option>Multi-Channel (Email + LinkedIn)</option><option>Escalation (3-touch → Call)</option></select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Target Vertical</label>
-        <select id="camp-vertical" style="width:100%">
-          <option>Federal DoD</option>
-          <option>Federal Civilian</option>
-          <option>Municipal Gov</option>
-          <option>Defense Contractor</option>
-          <option>Congressional</option>
-          <option>All</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Sequence Type</label>
-        <select id="camp-type" style="width:100%">
-          <option>Email Drip (D1 → D4 → D10)</option>
-          <option>LinkedIn Outreach</option>
-          <option>Cold Call Script</option>
-          <option>Multi-Channel (Email + LinkedIn)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Message Brief</label>
-        <textarea id="camp-brief" placeholder="What's the core message / offer for this campaign?"></textarea>
-      </div>
+      <div class="form-group"><label>Message Brief</label><textarea id="camp-brief" placeholder="Core message, offer, or angle for this campaign..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-campaign')">Cancel</button>
@@ -642,53 +499,28 @@
   </div>
 </div>
 
-<!-- NEW BRIEF MODAL -->
+<!-- BRIEF -->
 <div class="modal-overlay" id="modal-brief">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Submit Content Brief</div>
-      <button class="modal-close" onclick="closeModal('modal-brief')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Submit Content Brief</div><button class="modal-close" onclick="closeModal('modal-brief')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Brief Title</label>
-        <input type="text" id="brief-title" placeholder="e.g. Q1 Deterrence Campaign — Venezuela">
+      <div class="form-group"><label>Brief Title</label><input type="text" id="brief-title" placeholder="Q1 Deterrence Campaign — Venezuela"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Content Type</label>
+          <select id="brief-type"><option>Recruitment</option><option>Morale</option><option>Deterrence</option><option>Rapid Response</option><option>Meme-Layer</option><option>Brand Alignment</option><option>Geopolitical</option><option>Civic Outreach</option></select>
+        </div>
+        <div class="form-group"><label>Priority</label>
+          <select id="brief-priority"><option>Standard</option><option>High</option><option>URGENT</option></select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Content Type</label>
-        <select id="brief-type" style="width:100%">
-          <option>Recruitment</option>
-          <option>Morale</option>
-          <option>Deterrence</option>
-          <option>Rapid Response</option>
-          <option>Meme-Layer</option>
-          <option>Brand Alignment</option>
-          <option>Geopolitical</option>
-          <option>Civic Outreach</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Source Brief</label>
-        <textarea id="brief-body" placeholder="Paste the source brief, talking points, or key message intent..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Target Channels</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--text)">
-            <input type="checkbox" id="ch-telegram" checked> Telegram
-          </label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--text)">
-            <input type="checkbox" id="ch-whatsapp"> WhatsApp
-          </label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--text)">
-            <input type="checkbox" id="ch-discord"> Discord
-          </label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--text)">
-            <input type="checkbox" id="ch-email"> Email
-          </label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--text)">
-            <input type="checkbox" id="ch-web"> Web
-          </label>
+      <div class="form-group"><label>Source Brief</label><textarea id="brief-body" placeholder="Paste source brief, talking points, or key message intent..."></textarea></div>
+      <div class="form-group"><label>Target Channels</label>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" id="ch-telegram" checked> Telegram</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" id="ch-whatsapp"> WhatsApp</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" id="ch-discord"> Discord</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" id="ch-email"> Email</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" id="ch-web"> Web</label>
         </div>
       </div>
     </div>
@@ -699,35 +531,44 @@
   </div>
 </div>
 
-<!-- SCHEDULE MEETING -->
+<!-- OBJECTION -->
+<div class="modal-overlay" id="modal-objection">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Log Objection</div><button class="modal-close" onclick="closeModal('modal-objection')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="obj-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Objection Type</label><input type="text" id="obj-type" placeholder="Budget / Timeline / Security / etc."></div>
+        <div class="form-group"><label>Vertical</label>
+          <select id="obj-vertical"><option>Federal DoD</option><option>IC</option><option>SOCOM</option><option>Federal Civilian</option><option>Municipal</option><option>Defense Contractor</option><option>All</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Objection (verbatim or paraphrase)</label><textarea id="obj-text" placeholder="'We already have a vendor for this...'"></textarea></div>
+      <div class="form-group"><label>Counter Deployed</label><textarea id="obj-counter" placeholder="How did you respond? What framing worked?"></textarea></div>
+      <div class="form-group"><label>Outcome</label>
+        <select id="obj-outcome"><option value="pending">Pending</option><option value="converted">Converted</option><option value="stalled">Stalled</option><option value="lost">Lost</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-objection')">Cancel</button>
+      <button class="btn primary" onclick="saveObjection()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEETING -->
 <div class="modal-overlay" id="modal-meeting">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Schedule Briefing</div>
-      <button class="modal-close" onclick="closeModal('modal-meeting')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Schedule Briefing</div><button class="modal-close" onclick="closeModal('modal-meeting')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Lead / Prospect</label>
-        <select id="meeting-lead" style="width:100%"></select>
+      <div class="form-group"><label>Lead / Prospect</label><select id="meeting-lead" style="width:100%"></select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Date & Time</label><input type="datetime-local" id="meeting-datetime"></div>
+        <div class="form-group"><label>Format</label>
+          <select id="meeting-format"><option>Video Call (Zoom)</option><option>Phone</option><option>In Person</option><option>Teams</option><option>SCIF / Secure Line</option></select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Date & Time</label>
-        <input type="datetime-local" id="meeting-datetime">
-      </div>
-      <div class="form-group">
-        <label>Format</label>
-        <select id="meeting-format" style="width:100%">
-          <option>Video Call (Zoom)</option>
-          <option>Phone</option>
-          <option>In Person</option>
-          <option>Teams</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Notes / Agenda</label>
-        <textarea id="meeting-notes" placeholder="Key objectives, topics to cover..."></textarea>
-      </div>
+      <div class="form-group"><label>Agenda / Objectives</label><textarea id="meeting-notes" placeholder="Key topics, decision-makers attending, desired outcome..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-meeting')">Cancel</button>
@@ -736,341 +577,513 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════
+const STAGES = ['Qualified','Briefing','Proposal','Negotiation','Verbal','Closed'];
+const STAGE_MULT = { Qualified:0.30, Briefing:0.50, Proposal:0.70, Negotiation:0.85, Verbal:0.95, Closed:1.0 };
+const AUTH_PASS = 'Mufasa1945';
+
+// ═══════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════
-const STAGES = ['Identified','Contacted','Responded','Briefing Scheduled','Proposal Sent','Closed'];
-let state = {
-  leads: [],
-  campaigns: [],
-  content: [],
-  meetings: [],
-  auditLog: []
-};
-
-function loadState() {
-  const saved = localStorage.getItem('trestleboard_ops');
-  if (saved) state = JSON.parse(saved);
-}
-function saveState() {
-  localStorage.setItem('trestleboard_ops', JSON.stringify(state));
-}
+// ═══════════════════════════════════════════════════════
+let state = { leads:[], campaigns:[], content:[], meetings:[], objections:[], auditLog:[] };
+function loadState() { try { const s = localStorage.getItem('clawbot_v2'); if(s) state = JSON.parse(s); } catch(e){} }
+function saveState() { localStorage.setItem('clawbot_v2', JSON.stringify(state)); }
 function log(action, detail='') {
-  state.auditLog.unshift({
-    time: new Date().toISOString(),
-    actor: 'COMMANDER',
-    action,
-    detail
-  });
-  if (state.auditLog.length > 500) state.auditLog = state.auditLog.slice(0,500);
+  state.auditLog.unshift({ time:new Date().toISOString(), actor:'CLAWBOT', action, detail });
+  if(state.auditLog.length > 500) state.auditLog = state.auditLog.slice(0,500);
   saveState();
-  renderAuditLog();
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════
+function checkAuth() {
+  if(document.getElementById('auth-input').value === AUTH_PASS) {
+    sessionStorage.setItem('claw_auth','1');
+    document.getElementById('auth-gate').classList.add('hidden');
+  } else {
+    document.getElementById('auth-error').textContent = '⚠ ACCESS DENIED — INVALID CREDENTIALS';
+    document.getElementById('auth-input').value = '';
+  }
+}
+function initAuth() { if(sessionStorage.getItem('claw_auth')==='1') document.getElementById('auth-gate').classList.add('hidden'); }
+
+// ═══════════════════════════════════════════════════════
+// SCORING ENGINE
+// Lead Score = (Engagement×0.25)+(Speed×0.15)+(Channel×0.10)+(Sentiment×0.15)+(Recency×0.20)+(Fit×0.15)
+// ═══════════════════════════════════════════════════════
+function calcScore(lead) {
+  const e = (lead.scoreEngagement||5)/10;
+  const sp = (lead.scoreSpeed||5)/10;
+  const ch = 0.5; // default channel interaction
+  const sent = 0.5; // default sentiment
+  const fit = (lead.scoreFit||5)/10;
+  // Recency decay
+  let recency = 1.0;
+  if(lead.lastTouch) {
+    const daysSince = (Date.now() - new Date(lead.lastTouch).getTime()) / 86400000;
+    if(daysSince > 7) recency = 0.2;
+    else if(daysSince > 3) recency = 0.5;
+    else if(daysSince > 1) recency = 0.75;
+  }
+  const raw = (e*0.25 + sp*0.15 + ch*0.10 + sent*0.15 + recency*0.20 + fit*0.15) * 100;
+  return Math.round(Math.min(100, Math.max(0, raw)));
+}
+function scoreBadge(score) {
+  let cls = score>=70?'score-hot':score>=50?'score-warm':score>=30?'score-cool':'score-cold';
+  return `<span class="score-badge ${cls}">${score}</span>`;
+}
+function scoreColor(score) {
+  return score>=70?'#ff6666':score>=50?'#ffaa44':score>=30?'#66cc88':'#555566';
+}
+
+// ═══════════════════════════════════════════════════════
+// DECAY RISK
+// ═══════════════════════════════════════════════════════
+function decayDays(lead) {
+  if(!lead.lastTouch) return 999;
+  return (Date.now() - new Date(lead.lastTouch).getTime()) / 86400000;
+}
+function decayClass(lead) {
+  const d = decayDays(lead);
+  if(d > 3) return 'decay-hot';
+  if(d > 1) return 'decay-warn';
+  return 'decay-ok';
+}
+function decayLabel(lead) {
+  const d = decayDays(lead);
+  if(d > 7) return `<span class="decay-indicator decay-hot">⚠ ${Math.floor(d)}d STALE</span>`;
+  if(d > 3) return `<span class="decay-indicator decay-hot">▼ ${Math.floor(d)}d decay</span>`;
+  if(d > 1) return `<span class="decay-indicator decay-warn">~ ${Math.floor(d)}d</span>`;
+  return `<span class="decay-indicator decay-ok">✓ Fresh</span>`;
+}
+
+// ═══════════════════════════════════════════════════════
 // NAV
-// ═══════════════════════════════════════════════════════════
-function showSection(id) {
+// ═══════════════════════════════════════════════════════
+function showSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('section-'+id).classList.add('active');
-  event.target.classList.add('active');
+  if(btn) btn.classList.add('active');
   renderAll();
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // RENDER ALL
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function renderAll() {
+  updateTopBar();
+  renderAlerts();
+  renderCommand();
   renderKanban();
   renderLeadTable();
+  renderForecast();
   renderCampaigns();
   renderContent();
+  renderObjections();
   renderMeetings();
   renderAuditLog();
-  updateStats();
 }
 
-// ═══════════════════════════════════════════════════════════
-// STATS
-// ═══════════════════════════════════════════════════════════
-function updateStats() {
-  const active = state.leads.filter(l => !['Closed','Archived'].includes(l.status));
-  const briefing = state.leads.filter(l => l.status === 'Briefing Scheduled');
-  const closed = state.leads.filter(l => l.status === 'Closed');
-  document.getElementById('stat-total').textContent = state.leads.length;
-  document.getElementById('stat-active').textContent = active.length;
-  document.getElementById('stat-briefing').textContent = briefing.length;
-  document.getElementById('stat-closed').textContent = closed.length;
-  document.getElementById('top-lead-count').textContent = state.leads.length;
+// ═══════════════════════════════════════════════════════
+// TOP BAR
+// ═══════════════════════════════════════════════════════
+function updateTopBar() {
+  const active = state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  const decay = active.filter(l=>decayDays(l)>1);
+  const ev = active.reduce((s,l)=>{
+    const p = calcScore(l)/100;
+    const m = STAGE_MULT[l.status]||0.3;
+    return s + p*(l.value||0)*m;
+  },0);
+  document.getElementById('tm-pipeline').textContent = '$'+fmtNum(ev);
+  document.getElementById('tm-leads').textContent = active.length;
+  document.getElementById('tm-decay').textContent = decay.length;
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════════════════════
+function renderAlerts() {
+  const c = document.getElementById('alert-container');
+  if(!c) return;
+  const stale = state.leads.filter(l=>!['Closed','Archived'].includes(l.status)&&decayDays(l)>3);
+  const html = stale.map(l=>`
+    <div class="alert-strip ${decayDays(l)>7?'danger':''}">
+      <span>⚠ DECAY ALERT: <strong>${l.name}</strong> (${l.org}) — ${Math.floor(decayDays(l))}d since last contact. Stage: ${l.status}</span>
+      <button class="btn sm warn" onclick="touchLead('${l.id}')">Log Touch</button>
+    </div>`).join('');
+  c.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+// COMMAND CENTER
+// ═══════════════════════════════════════════════════════
+function renderCommand() {
+  const active = state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  const decay = active.filter(l=>decayDays(l)>1);
+  const stale = active.filter(l=>decayDays(l)>3);
+  document.getElementById('cmd-total').textContent = state.leads.length;
+  document.getElementById('cmd-active').textContent = active.length;
+  document.getElementById('cmd-decay').textContent = decay.length;
+  document.getElementById('cmd-stale').textContent = stale.length;
+  document.getElementById('cmd-briefings').textContent = state.leads.filter(l=>l.status==='Briefing').length;
+  document.getElementById('cmd-closed').textContent = state.leads.filter(l=>l.status==='Closed').length;
+
+  // Hot leads
+  const hot = [...state.leads].filter(l=>!['Closed','Archived'].includes(l.status))
+    .sort((a,b)=>calcScore(b)-calcScore(a)).slice(0,5);
+  const hotEl = document.getElementById('cmd-hot-leads');
+  if(hotEl) hotEl.innerHTML = hot.length ? hot.map(l=>`
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${scoreColor(calcScore(l))};padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:12px">${l.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${l.org} · ${l.status} · ${decayLabel(l)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${scoreBadge(calcScore(l))}
+        <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
+      </div>
+    </div>`).join('') : '<div style="color:var(--muted);padding:12px;font-size:11px">No active leads. Add your first lead.</div>';
+
+  // Mini forecast
+  const ev = calcEV();
+  const fEl = document.getElementById('cmd-forecast-mini');
+  if(fEl) fEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="background:var(--surface);border:1px solid var(--border);padding:12px;text-align:center">
+        <div style="font-size:18px;color:var(--muted);font-weight:bold">$${fmtNum(ev.conservative)}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">CONSERVATIVE</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--accent);padding:12px;text-align:center">
+        <div style="font-size:18px;color:var(--accent);font-weight:bold">$${fmtNum(ev.base)}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">BASE CASE</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--success);padding:12px;text-align:center">
+        <div style="font-size:18px;color:var(--success);font-weight:bold">$${fmtNum(ev.upside)}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">UPSIDE</div>
+      </div>
+    </div>`;
+
+  // Mini objections
+  const oEl = document.getElementById('cmd-objections-mini');
+  if(oEl) {
+    const top = state.objections.slice(0,3);
+    oEl.innerHTML = top.length ? top.map(o=>`
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);padding:10px 14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--warn)">${o.type}</span>
+          <span class="tag ${o.outcome==='converted'?'green':o.outcome==='lost'?'red':'amber'}">${o.outcome}</span>
+        </div>
+        <div style="font-size:10px;color:#888">${o.counter||'No counter recorded'}</div>
+      </div>`).join('') : '<div style="color:var(--muted);font-size:11px;padding:8px">No objections logged yet. Log patterns as you encounter them.</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 // KANBAN
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 let dragId = null;
 function renderKanban() {
   const board = document.getElementById('kanban-board');
+  if(!board) return;
   board.innerHTML = '';
-  STAGES.forEach(stage => {
-    const leads = state.leads.filter(l => l.status === stage);
+  STAGES.forEach(stage=>{
+    const leads = state.leads.filter(l=>l.status===stage);
     const col = document.createElement('div');
     col.className = 'kanban-col';
-    col.dataset.stage = stage;
     col.innerHTML = `
       <div class="kanban-col-header">
         <span class="kanban-col-title">${stage}</span>
         <span class="kanban-col-count">${leads.length}</span>
       </div>
-      <div class="kanban-col-body" id="kanban-col-${stage.replace(/\s/g,'_')}">
-        ${leads.map(l => kanbanCard(l)).join('')}
+      <div class="kanban-col-body">
+        ${leads.map(l=>{
+          const score = calcScore(l);
+          const dc = decayClass(l);
+          return `<div class="kanban-card ${dc}" draggable="true" id="kc-${l.id}"
+            ondragstart="dragStart('${l.id}')" ondragend="dragEnd()">
+            <div class="card-name">${l.name}</div>
+            <div class="card-org">${l.org}</div>
+            <div class="card-score-bar"><div class="card-score-fill" style="width:${score}%;background:${scoreColor(score)}"></div></div>
+            <div class="card-score-label">Score: ${score} · ${decayLabel(l)}</div>
+            <div class="card-actions">
+              <button class="btn sm" onclick="openEditLead('${l.id}')">Edit</button>
+              <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
+              <button class="btn sm success" onclick="touchLead('${l.id}')">Touch</button>
+            </div>
+          </div>`;
+        }).join('')}
       </div>`;
-    // drag over
-    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
-    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
-    col.addEventListener('drop', e => {
-      e.preventDefault();
-      col.classList.remove('drag-over');
-      if (dragId) {
-        const lead = state.leads.find(l => l.id === dragId);
-        if (lead) {
-          log(`STATUS CHANGED: ${lead.name}`, `${lead.status} → ${stage}`);
-          lead.status = stage;
-          lead.lastTouch = new Date().toLocaleDateString();
-          saveState();
-          renderAll();
-        }
-      }
+    col.addEventListener('dragover', e=>{ e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', ()=>col.classList.remove('drag-over'));
+    col.addEventListener('drop', e=>{
+      e.preventDefault(); col.classList.remove('drag-over');
+      if(dragId){ const l=state.leads.find(x=>x.id===dragId); if(l){ log(`STAGE: ${l.name}`,`${l.status}→${stage}`); l.status=stage; l.lastTouch=new Date().toISOString(); saveState(); renderAll(); }}
     });
     board.appendChild(col);
   });
 }
-function kanbanCard(lead) {
-  return `<div class="kanban-card" draggable="true" id="kcard-${lead.id}"
-    ondragstart="dragStart('${lead.id}')" ondragend="dragEnd()">
-    <div class="card-name">${lead.name}</div>
-    <div class="card-org">${lead.org} · <span class="tag amber" style="font-size:9px">${lead.vertical}</span></div>
-    <div class="card-actions">
-      <button class="btn sm" onclick="openEditLead('${lead.id}')">Edit</button>
-      <button class="btn sm primary" onclick="openDossier('${lead.id}')">Dossier</button>
-      <button class="btn sm danger" onclick="archiveLead('${lead.id}')">Archive</button>
-    </div>
-  </div>`;
-}
-function dragStart(id) { dragId = id; document.getElementById('kcard-'+id)?.classList.add('dragging'); }
-function dragEnd() { dragId = null; document.querySelectorAll('.kanban-card').forEach(c => c.classList.remove('dragging')); }
+function dragStart(id){ dragId=id; document.getElementById('kc-'+id)?.classList.add('dragging'); }
+function dragEnd(){ dragId=null; document.querySelectorAll('.kanban-card').forEach(c=>c.classList.remove('dragging')); }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // LEAD TABLE
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function renderLeadTable() {
-  const tbody = document.getElementById('lead-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = state.leads.map(l => `
+  const tb = document.getElementById('lead-tbody');
+  if(!tb) return;
+  const sorted = [...state.leads].sort((a,b)=>calcScore(b)-calcScore(a));
+  tb.innerHTML = sorted.map(l=>`
     <tr>
+      <td>${scoreBadge(calcScore(l))}</td>
       <td>${l.name}</td>
       <td>${l.org}</td>
       <td><span class="tag amber">${l.vertical}</span></td>
       <td>
-        <select onchange="changeStatus('${l.id}', this.value)" style="width:100%">
-          ${STAGES.map(s => `<option${s===l.status?' selected':''}>${s}</option>`).join('')}
-          <option${l.status==='Archived'?' selected':''}>Archived</option>
+        <select onchange="changeStatus('${l.id}',this.value)" style="width:100%;max-width:140px">
+          ${[...STAGES,'Archived'].map(s=>`<option${s===l.status?' selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td style="color:var(--muted)">${l.lastTouch || '—'}</td>
-      <td>
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-          <button class="btn sm" onclick="openEditLead('${l.id}')">Edit</button>
-          <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
-          <button class="btn sm success" onclick="triggerSequenceForLead('${l.id}')">Outreach</button>
-          <button class="btn sm danger" onclick="deleteLead('${l.id}')">Delete</button>
-        </div>
-      </td>
-    </tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px">No leads yet. Add your first lead.</td></tr>';
-}
-function changeStatus(id, status) {
-  const lead = state.leads.find(l => l.id === id);
-  if (lead) {
-    log(`STATUS: ${lead.name}`, `→ ${status}`);
-    lead.status = status;
-    lead.lastTouch = new Date().toLocaleDateString();
-    saveState();
-    renderAll();
-  }
-}
-function archiveLead(id) {
-  const lead = state.leads.find(l => l.id === id);
-  if (lead) { lead.status = 'Archived'; lead.lastTouch = new Date().toLocaleDateString(); log(`ARCHIVED: ${lead.name}`); saveState(); renderAll(); }
-}
-function deleteLead(id) {
-  if (!confirm('Delete this lead? This cannot be undone.')) return;
-  const lead = state.leads.find(l => l.id === id);
-  if (lead) log(`DELETED: ${lead.name}`);
-  state.leads = state.leads.filter(l => l.id !== id);
-  saveState(); renderAll();
-}
-function triggerSequenceForLead(id) {
-  const lead = state.leads.find(l => l.id === id);
-  if (!lead) return;
-  state.campaigns.push({
-    id: uid(), name: `Outreach → ${lead.name}`, vertical: lead.vertical,
-    type: 'Email Drip (D1 → D4 → D10)', brief: lead.notes || 'Trestleboard capability intro',
-    created: new Date().toISOString(), status: 'Active',
-    steps: [
-      { day: 'D1', label: 'First Touch', done: true },
-      { day: 'D4', label: 'Follow-Up', done: false },
-      { day: 'D10', label: 'Final Push', done: false }
-    ]
-  });
-  lead.lastTouch = new Date().toLocaleDateString();
-  log(`CAMPAIGN TRIGGERED: ${lead.name}`, 'Email Drip initiated');
-  saveState(); renderAll();
-  toast(`Campaign launched for ${lead.name}`);
+      <td>${decayLabel(l)}</td>
+      <td style="color:var(--accent)">${l.value?'$'+fmtNum(l.value):'—'}</td>
+      <td><div style="display:flex;gap:3px;flex-wrap:wrap">
+        <button class="btn sm" onclick="openEditLead('${l.id}')">Edit</button>
+        <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
+        <button class="btn sm success" onclick="touchLead('${l.id}')">Touch</button>
+        <button class="btn sm warn" onclick="triggerSequenceForLead('${l.id}')">Outreach</button>
+        <button class="btn sm danger" onclick="deleteLead('${l.id}')">Del</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:24px">No leads. Add your first lead.</td></tr>';
 }
 
-// ═══════════════════════════════════════════════════════════
-// CAMPAIGNS
-// ═══════════════════════════════════════════════════════════
-function renderCampaigns() {
-  const el = document.getElementById('campaigns-list');
-  if (!el) return;
-  if (!state.campaigns.length) {
-    el.innerHTML = '<div style="color:var(--muted);padding:24px;text-align:center">No active campaigns. Trigger one from the button above or from a lead.</div>';
-    return;
+function changeStatus(id, status) {
+  const l=state.leads.find(x=>x.id===id);
+  if(l){ log(`STATUS: ${l.name}`,`→${status}`); l.status=status; l.lastTouch=new Date().toISOString(); saveState(); renderAll(); }
+}
+function touchLead(id) {
+  const l=state.leads.find(x=>x.id===id);
+  if(l){ l.lastTouch=new Date().toISOString(); log(`TOUCH: ${l.name}`,'Contact logged'); saveState(); renderAll(); toast(`Touch logged: ${l.name}`); }
+}
+function deleteLead(id) {
+  if(!confirm('Delete this lead?')) return;
+  const l=state.leads.find(x=>x.id===id); if(l) log(`DELETED: ${l.name}`);
+  state.leads=state.leads.filter(x=>x.id!==id); saveState(); renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+// FORECAST ENGINE
+// EV = P(close) × deal_value × stage_mult × urgency_coeff
+// ═══════════════════════════════════════════════════════
+function calcEV() {
+  let base=0;
+  state.leads.filter(l=>!['Archived'].includes(l.status)).forEach(l=>{
+    const p = calcScore(l)/100;
+    const m = STAGE_MULT[l.status]||0.3;
+    const v = l.value||0;
+    base += p*v*m;
+  });
+  return {
+    conservative: base*0.7,
+    base,
+    upside: Math.min(base*1.3, state.leads.reduce((s,l)=>s+(l.value||0),0))
+  };
+}
+
+function renderForecast() {
+  const ev = calcEV();
+  const fc = document.getElementById('fc-conservative');
+  if(!fc) return;
+  document.getElementById('fc-conservative').textContent = '$'+fmtNum(ev.conservative);
+  document.getElementById('fc-base').textContent = '$'+fmtNum(ev.base);
+  document.getElementById('fc-upside').textContent = '$'+fmtNum(ev.upside);
+
+  // Stage bars
+  const barsEl = document.getElementById('pipeline-bars');
+  if(barsEl){
+    const maxEV = Math.max(...STAGES.map(s=>{
+      return state.leads.filter(l=>l.status===s).reduce((sum,l)=>{
+        return sum + (calcScore(l)/100)*(l.value||0)*(STAGE_MULT[s]||0.3);
+      },0);
+    }),1);
+    barsEl.innerHTML = STAGES.map(s=>{
+      const stageLeads = state.leads.filter(l=>l.status===s);
+      const stageEV = stageLeads.reduce((sum,l)=>sum+(calcScore(l)/100)*(l.value||0)*(STAGE_MULT[s]||0.3),0);
+      const pct = Math.round((stageEV/maxEV)*100);
+      return `<div class="pipeline-row">
+        <div class="pipeline-stage-label">${s}</div>
+        <div class="pipeline-bar-wrap">
+          <div class="pipeline-bar-fill" style="width:${pct}%"></div>
+          <div class="pipeline-bar-label">${stageLeads.length} leads</div>
+        </div>
+        <div class="pipeline-ev">$${fmtNum(stageEV)}</div>
+      </div>`;
+    }).join('');
   }
-  el.innerHTML = state.campaigns.map(c => `
+
+  // Forecast table
+  const ftb = document.getElementById('forecast-tbody');
+  if(ftb){
+    const leads = [...state.leads].filter(l=>l.status!=='Archived').sort((a,b)=>{
+      const aEV=(calcScore(a)/100)*(a.value||0)*(STAGE_MULT[a.status]||0.3);
+      const bEV=(calcScore(b)/100)*(b.value||0)*(STAGE_MULT[b.status]||0.3);
+      return bEV-aEV;
+    });
+    ftb.innerHTML = leads.map(l=>{
+      const p=calcScore(l)/100;
+      const m=STAGE_MULT[l.status]||0.3;
+      const ev2=p*(l.value||0)*m;
+      return `<tr>
+        <td>${l.name}<div style="font-size:10px;color:var(--muted)">${l.org}</div></td>
+        <td><span class="tag ${stageTag(l.status)}">${l.status}</span></td>
+        <td>${scoreBadge(calcScore(l))}</td>
+        <td>${l.value?'$'+fmtNum(l.value):'—'}</td>
+        <td>${Math.round(p*100)}%</td>
+        <td>${m}</td>
+        <td style="color:var(--accent);font-weight:bold">$${fmtNum(ev2)}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:16px">No leads to forecast.</td></tr>';
+  }
+}
+
+function stageTag(s){
+  const map={Qualified:'gray',Briefing:'blue',Proposal:'amber',Negotiation:'warn',Verbal:'green',Closed:'green',Archived:'gray'};
+  return map[s]||'gray';
+}
+
+// ═══════════════════════════════════════════════════════
+// CAMPAIGNS
+// ═══════════════════════════════════════════════════════
+function renderCampaigns() {
+  const el=document.getElementById('campaigns-list');
+  if(!el) return;
+  if(!state.campaigns.length){ el.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center;font-size:11px">No campaigns running. Trigger one above.</div>'; return; }
+  el.innerHTML = state.campaigns.map(c=>`
     <div class="sequence-card">
       <div class="sequence-header">
-        <div>
-          <div class="sequence-title">${c.name}</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:4px">${c.type} · <span class="tag ${c.status==='Active'?'green':'gray'}">${c.status}</span></div>
-        </div>
+        <div><div class="sequence-title">${c.name}</div><div class="sequence-meta">${c.type} · ${c.vertical} · <span class="tag ${c.status==='Active'?'green':c.status==='Completed'?'blue':'gray'}">${c.status}</span></div></div>
         <div style="font-size:10px;color:var(--muted)">${new Date(c.created).toLocaleDateString()}</div>
       </div>
-      <div class="sequence-steps">
-        ${c.steps.map(s => `<div class="step ${s.done?'done':s===c.steps.find(x=>!x.done)?'active':''}"><div>${s.day}</div><div>${s.label}</div></div>`).join('')}
-      </div>
+      <div class="sequence-steps">${c.steps.map(s=>`<div class="step ${s.done?'done':s===c.steps.find(x=>!x.done)?'active':''}"><div>${s.day}</div><div style="font-size:8px">${s.label}</div></div>`).join('')}</div>
       <div class="sequence-actions">
         <button class="btn sm success" onclick="advanceStep('${c.id}')">✓ Mark Step Done</button>
         <button class="btn sm primary" onclick="addTouchpoint('${c.id}')">Log Touchpoint</button>
-        ${c.status==='Active'
-          ? `<button class="btn sm danger" onclick="pauseCampaign('${c.id}')">Pause</button>`
-          : `<button class="btn sm success" onclick="resumeCampaign('${c.id}')">Resume</button>`}
+        ${c.status==='Active'?`<button class="btn sm danger" onclick="pauseCampaign('${c.id}')">Pause</button>`:`<button class="btn sm success" onclick="resumeCampaign('${c.id}')">Resume</button>`}
         <button class="btn sm danger" onclick="deleteCampaign('${c.id}')">Delete</button>
       </div>
     </div>`).join('');
 }
-function advanceStep(id) {
-  const c = state.campaigns.find(x => x.id === id);
-  if (!c) return;
-  const next = c.steps.find(s => !s.done);
-  if (next) { next.done = true; log(`STEP COMPLETED: ${c.name}`, next.label); }
-  else { c.status = 'Completed'; log(`CAMPAIGN COMPLETED: ${c.name}`); }
-  saveState(); renderAll();
+function advanceStep(id){
+  const c=state.campaigns.find(x=>x.id===id); if(!c) return;
+  const n=c.steps.find(s=>!s.done);
+  if(n){n.done=true;log(`STEP DONE: ${c.name}`,n.label);}
+  else{c.status='Completed';log(`CAMPAIGN COMPLETE: ${c.name}`);}
+  saveState();renderAll();
 }
-function pauseCampaign(id) {
-  const c = state.campaigns.find(x => x.id === id);
-  if (c) { c.status = 'Paused'; log(`PAUSED: ${c.name}`); saveState(); renderAll(); }
+function pauseCampaign(id){const c=state.campaigns.find(x=>x.id===id);if(c){c.status='Paused';log(`PAUSED: ${c.name}`);saveState();renderAll();}}
+function resumeCampaign(id){const c=state.campaigns.find(x=>x.id===id);if(c){c.status='Active';log(`RESUMED: ${c.name}`);saveState();renderAll();}}
+function deleteCampaign(id){const c=state.campaigns.find(x=>x.id===id);if(c)log(`DELETED CAMPAIGN: ${c.name}`);state.campaigns=state.campaigns.filter(x=>x.id!==id);saveState();renderAll();}
+function addTouchpoint(id){
+  const n=prompt('Log touchpoint note:');
+  if(n){const c=state.campaigns.find(x=>x.id===id);log(`TOUCHPOINT: ${c?.name||id}`,n);saveState();renderAll();toast('Touchpoint logged');}
 }
-function resumeCampaign(id) {
-  const c = state.campaigns.find(x => x.id === id);
-  if (c) { c.status = 'Active'; log(`RESUMED: ${c.name}`); saveState(); renderAll(); }
-}
-function deleteCampaign(id) {
-  const c = state.campaigns.find(x => x.id === id);
-  if (c) log(`DELETED CAMPAIGN: ${c.name}`);
-  state.campaigns = state.campaigns.filter(x => x.id !== id);
-  saveState(); renderAll();
-}
-function addTouchpoint(id) {
-  const note = prompt('Log touchpoint note:');
-  if (note) {
-    const c = state.campaigns.find(x => x.id === id);
-    log(`TOUCHPOINT: ${c?.name || id}`, note);
-    saveState(); renderAll();
-    toast('Touchpoint logged');
-  }
+function triggerSequenceForLead(id){
+  const l=state.leads.find(x=>x.id===id);if(!l)return;
+  state.campaigns.push({id:uid(),name:`Outreach → ${l.name}`,vertical:l.vertical,type:'Email Drip (D1→D4→D10)',brief:l.notes||'Trestleboard capability intro',created:new Date().toISOString(),status:'Active',steps:[{day:'D1',label:'First Touch',done:true},{day:'D4',label:'Follow-Up',done:false},{day:'D10',label:'Final Push',done:false}]});
+  l.lastTouch=new Date().toISOString();
+  log(`CAMPAIGN TRIGGERED: ${l.name}`,'Email Drip initiated');
+  saveState();renderAll();toast(`Campaign launched: ${l.name}`);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // CONTENT QUEUE
-// ═══════════════════════════════════════════════════════════
-function renderContent() {
-  const el = document.getElementById('content-list');
-  if (!el) return;
-  if (!state.content.length) {
-    el.innerHTML = '<div style="color:var(--muted);padding:24px;text-align:center">No content in queue. Submit a brief to begin.</div>';
-    return;
-  }
-  el.innerHTML = state.content.map(c => `
-    <div class="queue-card" style="border-left-color:${c.status==='Approved'?'#44cc44':c.status==='Rejected'?'var(--danger)':'var(--accent)'}">
+// ═══════════════════════════════════════════════════════
+function renderContent(){
+  const el=document.getElementById('content-list');if(!el)return;
+  if(!state.content.length){el.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center;font-size:11px">No content in queue. Submit a brief.</div>';return;}
+  el.innerHTML=state.content.map(c=>`
+    <div class="queue-card" style="border-left-color:${c.status==='Approved'||c.status==='Deployed'?'var(--success)':c.status==='Rejected'?'var(--danger)':c.priority==='URGENT'?'var(--danger)':'var(--accent)'}">
       <div class="queue-card-header">
-        <div>
-          <div class="queue-card-title">${c.title}</div>
-          <div class="queue-card-meta">${c.type} · ${new Date(c.created).toLocaleDateString()}</div>
-        </div>
-        <span class="tag ${c.status==='Approved'?'green':c.status==='Rejected'?'red':'amber'}">${c.status}</span>
+        <div><div class="queue-card-title">${c.title} ${c.priority==='URGENT'?'<span class="tag red">URGENT</span>':''}</div><div class="queue-card-meta">${c.type} · ${new Date(c.created).toLocaleDateString()}</div></div>
+        <span class="tag ${c.status==='Approved'||c.status==='Deployed'?'green':c.status==='Rejected'?'red':'amber'}">${c.status}</span>
       </div>
       <div class="queue-card-body">${c.body}</div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Channels: ${c.channels.join(' · ')}</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Channels: ${c.channels.join(' · ')}</div>
       <div class="queue-card-actions">
-        ${c.status==='Pending'?`
-          <button class="btn sm success" onclick="approveContent('${c.id}')">✓ Approve</button>
-          <button class="btn sm danger" onclick="rejectContent('${c.id}')">✕ Reject</button>`:''}
+        ${c.status==='Pending'?`<button class="btn sm success" onclick="approveContent('${c.id}')">✓ Approve</button><button class="btn sm danger" onclick="rejectContent('${c.id}')">✕ Reject</button>`:''}
         ${c.status==='Approved'?`<button class="btn sm primary" onclick="deployContent('${c.id}')">🚀 Deploy</button>`:''}
         <button class="btn sm" onclick="deleteContent('${c.id}')">Delete</button>
       </div>
     </div>`).join('');
 }
-function approveContent(id) {
-  const c = state.content.find(x => x.id === id);
-  if (c) { c.status = 'Approved'; log(`APPROVED: ${c.title}`); saveState(); renderAll(); toast('Content approved'); }
-}
-function rejectContent(id) {
-  const c = state.content.find(x => x.id === id);
-  if (c) { c.status = 'Rejected'; log(`REJECTED: ${c.title}`); saveState(); renderAll(); }
-}
-function deployContent(id) {
-  const c = state.content.find(x => x.id === id);
-  if (c) { c.status = 'Deployed'; log(`DEPLOYED: ${c.title}`, `Channels: ${c.channels.join(', ')}`); saveState(); renderAll(); toast(`Deployed to ${c.channels.join(', ')}`); }
-}
-function deleteContent(id) {
-  const c = state.content.find(x => x.id === id);
-  if (c) log(`DELETED CONTENT: ${c.title}`);
-  state.content = state.content.filter(x => x.id !== id);
-  saveState(); renderAll();
-}
+function approveContent(id){const c=state.content.find(x=>x.id===id);if(c){c.status='Approved';log(`APPROVED: ${c.title}`);saveState();renderAll();toast('Approved');}}
+function rejectContent(id){const c=state.content.find(x=>x.id===id);if(c){c.status='Rejected';log(`REJECTED: ${c.title}`);saveState();renderAll();}}
+function deployContent(id){const c=state.content.find(x=>x.id===id);if(c){c.status='Deployed';log(`DEPLOYED: ${c.title}`,c.channels.join(', '));saveState();renderAll();toast(`Deployed to ${c.channels.join(', ')}`);}}
+function deleteContent(id){const c=state.content.find(x=>x.id===id);if(c)log(`DELETED CONTENT: ${c.title}`);state.content=state.content.filter(x=>x.id!==id);saveState();renderAll();}
 
-// ═══════════════════════════════════════════════════════════
-// MEETINGS
-// ═══════════════════════════════════════════════════════════
-function renderMeetings() {
-  const el = document.getElementById('meetings-list');
-  if (!el) return;
-  if (!state.meetings.length) {
-    el.innerHTML = '<div style="color:var(--muted);padding:24px;text-align:center">No briefings scheduled.</div>';
-    return;
-  }
-  el.innerHTML = state.meetings.map(m => {
-    const lead = state.leads.find(l => l.id === m.leadId);
-    return `<div class="sequence-card">
-      <div class="sequence-header">
-        <div>
-          <div class="sequence-title">${lead ? lead.name : 'Unknown Lead'}</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:4px">${lead ? lead.org : ''} · ${m.format}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="color:var(--accent)">${m.datetime ? new Date(m.datetime).toLocaleString() : '—'}</div>
-          <span class="tag ${m.outcome==='Won'?'green':m.outcome==='Lost'?'red':'amber'}">${m.outcome||'Scheduled'}</span>
+// ═══════════════════════════════════════════════════════
+// OBJECTION REGISTRY
+// ═══════════════════════════════════════════════════════
+function renderObjections(){
+  const el=document.getElementById('objections-list');if(!el)return;
+  if(!state.objections.length){el.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center;font-size:11px">No objections logged. Record patterns as you encounter them in the field — they become your playbook.</div>';return;}
+  el.innerHTML=state.objections.map(o=>`
+    <div class="obj-card">
+      <div class="obj-header">
+        <div><div class="obj-type">${o.type}</div><div class="obj-vertical">${o.vertical}</div></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="tag ${o.outcome==='converted'?'green':o.outcome==='lost'?'red':o.outcome==='stalled'?'warn':'gray'}">${o.outcome}</span>
+          <button class="btn sm" onclick="editObjection('${o.id}')">Edit</button>
+          <button class="btn sm danger" onclick="deleteObjection('${o.id}')">Del</button>
         </div>
       </div>
-      ${m.notes ? `<div style="font-size:11px;color:#aaa;margin-bottom:12px">${m.notes}</div>` : ''}
-      <div style="display:flex;gap:8px">
-        <button class="btn sm primary" onclick="openDossier('${m.leadId}')">View Dossier</button>
+      <div style="font-size:11px;color:#777;margin-bottom:8px;font-style:italic">"${o.text}"</div>
+      <div class="obj-counter"><strong style="color:var(--muted);font-size:9px;letter-spacing:1px">COUNTER:</strong><br>${o.counter||'No counter recorded'}</div>
+    </div>`).join('');
+}
+function openAddObjection(){document.getElementById('obj-id').value='';['obj-type','obj-text','obj-counter'].forEach(id=>document.getElementById(id).value='');document.getElementById('obj-outcome').value='pending';openModal('modal-objection');}
+function editObjection(id){
+  const o=state.objections.find(x=>x.id===id);if(!o)return;
+  document.getElementById('obj-id').value=o.id;
+  document.getElementById('obj-type').value=o.type;
+  document.getElementById('obj-vertical').value=o.vertical;
+  document.getElementById('obj-text').value=o.text;
+  document.getElementById('obj-counter').value=o.counter||'';
+  document.getElementById('obj-outcome').value=o.outcome;
+  openModal('modal-objection');
+}
+function saveObjection(){
+  const id=document.getElementById('obj-id').value;
+  const data={type:document.getElementById('obj-type').value.trim(),vertical:document.getElementById('obj-vertical').value,text:document.getElementById('obj-text').value.trim(),counter:document.getElementById('obj-counter').value.trim(),outcome:document.getElementById('obj-outcome').value};
+  if(!data.type||!data.text){alert('Objection type and text required.');return;}
+  if(id){Object.assign(state.objections.find(x=>x.id===id),data);log(`OBJ UPDATED: ${data.type}`);}
+  else{state.objections.push({id:uid(),...data,created:new Date().toISOString()});log(`OBJ LOGGED: ${data.type}`,data.vertical);}
+  saveState();closeModal('modal-objection');renderAll();toast('Objection logged');
+}
+function deleteObjection(id){state.objections=state.objections.filter(x=>x.id!==id);log('OBJ DELETED');saveState();renderAll();}
+
+// ═══════════════════════════════════════════════════════
+// MEETINGS
+// ═══════════════════════════════════════════════════════
+function renderMeetings(){
+  const el=document.getElementById('meetings-list');if(!el)return;
+  if(!state.meetings.length){el.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center;font-size:11px">No briefings scheduled.</div>';return;}
+  el.innerHTML=state.meetings.map(m=>{
+    const l=state.leads.find(x=>x.id===m.leadId);
+    return `<div class="meeting-card">
+      <div class="meeting-header">
+        <div><div style="font-size:13px">${l?l.name:'Unknown'}</div><div style="font-size:10px;color:var(--muted)">${l?l.org:''} · ${m.format}</div></div>
+        <div style="text-align:right"><div style="color:var(--accent);font-size:12px">${m.datetime?new Date(m.datetime).toLocaleString():'—'}</div><span class="tag ${m.outcome==='Won'?'green':m.outcome==='Lost'?'red':'amber'}">${m.outcome||'Scheduled'}</span></div>
+      </div>
+      ${m.notes?`<div style="font-size:11px;color:#888;margin-bottom:12px">${m.notes}</div>`:''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn sm primary" onclick="openDossier('${m.leadId}')">Dossier</button>
         <button class="btn sm success" onclick="setOutcome('${m.id}','Won')">Mark Won</button>
         <button class="btn sm danger" onclick="setOutcome('${m.id}','Lost')">Mark Lost</button>
         <button class="btn sm" onclick="deleteMeeting('${m.id}')">Delete</button>
@@ -1078,283 +1091,233 @@ function renderMeetings() {
     </div>`;
   }).join('');
 }
-function setOutcome(id, outcome) {
-  const m = state.meetings.find(x => x.id === id);
-  if (m) {
-    m.outcome = outcome;
-    const lead = state.leads.find(l => l.id === m.leadId);
-    if (lead && outcome === 'Won') { lead.status = 'Closed'; lead.lastTouch = new Date().toLocaleDateString(); }
-    log(`MEETING ${outcome.toUpperCase()}: ${lead?.name || id}`);
-    saveState(); renderAll();
-  }
+function setOutcome(id,outcome){
+  const m=state.meetings.find(x=>x.id===id);if(!m)return;
+  m.outcome=outcome;
+  const l=state.leads.find(x=>x.id===m.leadId);
+  if(l&&outcome==='Won'){l.status='Closed';l.lastTouch=new Date().toISOString();}
+  log(`MEETING ${outcome}: ${l?.name||id}`);
+  saveState();renderAll();
 }
-function deleteMeeting(id) {
-  state.meetings = state.meetings.filter(x => x.id !== id);
-  log('MEETING DELETED'); saveState(); renderAll();
-}
+function deleteMeeting(id){state.meetings=state.meetings.filter(x=>x.id!==id);log('MEETING DELETED');saveState();renderAll();}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // AUDIT LOG
-// ═══════════════════════════════════════════════════════════
-function renderAuditLog() {
-  const el = document.getElementById('audit-log-list');
-  if (!el) return;
-  if (!state.auditLog.length) {
-    el.innerHTML = '<div style="color:var(--muted);padding:24px;text-align:center">No events logged yet.</div>';
-    return;
-  }
-  el.innerHTML = state.auditLog.slice(0, 200).map(e => `
+// ═══════════════════════════════════════════════════════
+function renderAuditLog(){
+  const el=document.getElementById('audit-log-list');if(!el)return;
+  if(!state.auditLog.length){el.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center">No events logged.</div>';return;}
+  el.innerHTML=state.auditLog.slice(0,300).map(e=>`
     <div class="log-entry">
       <span class="log-time">${new Date(e.time).toLocaleString()}</span>
       <span class="log-actor">${e.actor}</span>
-      <span class="log-action">${e.action}${e.detail ? ' — ' + e.detail : ''}</span>
+      <span class="log-action">${e.action}${e.detail?' — '+e.detail:''}</span>
     </div>`).join('');
 }
-function clearLog() {
-  if (confirm('Clear all audit log entries?')) { state.auditLog = []; saveState(); renderAll(); }
-}
-function exportLog() {
-  const csv = ['Time,Actor,Action,Detail',...state.auditLog.map(e => `"${e.time}","${e.actor}","${e.action}","${e.detail||''}"`).join('\n')].join('\n');
-  downloadFile('trestleboard-audit-log.csv', csv, 'text/csv');
+function clearLog(){if(confirm('Clear audit log?')){state.auditLog=[];saveState();renderAll();}}
+function exportLog(){
+  const csv=['Time,Actor,Action,Detail',...state.auditLog.map(e=>`"${e.time}","${e.actor}","${e.action}","${e.detail||''}"`)].join('\n');
+  dl('clawbot-audit.csv',csv,'text/csv');log('EXPORTED: Audit Log');
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // MODALS
-// ═══════════════════════════════════════════════════════════
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// ═══════════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-function openAddLead() {
-  document.getElementById('lead-modal-title').textContent = 'New Lead';
-  document.getElementById('lead-id').value = '';
-  ['lead-name','lead-org','lead-email','lead-notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('lead-status').value = 'Identified';
+function openAddLead(){
+  document.getElementById('lead-modal-title').textContent='New Lead';
+  document.getElementById('lead-id').value='';
+  ['lead-name','lead-org','lead-email','lead-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lead-value').value='';
+  ['score-engagement','score-speed','score-fit'].forEach(id=>document.getElementById(id).value='5');
+  document.getElementById('lead-status').value='Qualified';
   openModal('modal-lead');
 }
-function openEditLead(id) {
-  const lead = state.leads.find(l => l.id === id);
-  if (!lead) return;
-  document.getElementById('lead-modal-title').textContent = 'Edit Lead';
-  document.getElementById('lead-id').value = lead.id;
-  document.getElementById('lead-name').value = lead.name;
-  document.getElementById('lead-org').value = lead.org;
-  document.getElementById('lead-email').value = lead.email || '';
-  document.getElementById('lead-notes').value = lead.notes || '';
-  document.getElementById('lead-status').value = lead.status;
-  document.getElementById('lead-vertical').value = lead.vertical;
+function openEditLead(id){
+  const l=state.leads.find(x=>x.id===id);if(!l)return;
+  document.getElementById('lead-modal-title').textContent='Edit Lead';
+  document.getElementById('lead-id').value=l.id;
+  document.getElementById('lead-name').value=l.name;
+  document.getElementById('lead-org').value=l.org;
+  document.getElementById('lead-email').value=l.email||'';
+  document.getElementById('lead-notes').value=l.notes||'';
+  document.getElementById('lead-status').value=l.status;
+  document.getElementById('lead-vertical').value=l.vertical;
+  document.getElementById('lead-value').value=l.value||'';
+  document.getElementById('score-engagement').value=l.scoreEngagement||5;
+  document.getElementById('score-speed').value=l.scoreSpeed||5;
+  document.getElementById('score-fit').value=l.scoreFit||5;
   openModal('modal-lead');
 }
-function saveLead() {
-  const id = document.getElementById('lead-id').value;
-  const data = {
-    name: document.getElementById('lead-name').value.trim(),
-    org: document.getElementById('lead-org').value.trim(),
-    vertical: document.getElementById('lead-vertical').value,
-    email: document.getElementById('lead-email').value.trim(),
-    status: document.getElementById('lead-status').value,
-    notes: document.getElementById('lead-notes').value.trim(),
-    lastTouch: new Date().toLocaleDateString()
+function saveLead(){
+  const id=document.getElementById('lead-id').value;
+  const data={
+    name:document.getElementById('lead-name').value.trim(),
+    org:document.getElementById('lead-org').value.trim(),
+    vertical:document.getElementById('lead-vertical').value,
+    email:document.getElementById('lead-email').value.trim(),
+    status:document.getElementById('lead-status').value,
+    notes:document.getElementById('lead-notes').value.trim(),
+    value:parseFloat(document.getElementById('lead-value').value)||0,
+    scoreEngagement:parseFloat(document.getElementById('score-engagement').value)||5,
+    scoreSpeed:parseFloat(document.getElementById('score-speed').value)||5,
+    scoreFit:parseFloat(document.getElementById('score-fit').value)||5,
+    lastTouch:new Date().toISOString()
   };
-  if (!data.name || !data.org) { alert('Name and Organization required.'); return; }
-  if (id) {
-    Object.assign(state.leads.find(l => l.id === id), data);
-    log(`LEAD UPDATED: ${data.name}`);
-  } else {
-    state.leads.push({ id: uid(), ...data });
-    log(`LEAD ADDED: ${data.name}`, data.org);
-  }
-  saveState(); closeModal('modal-lead'); renderAll();
+  if(!data.name||!data.org){alert('Name and Organization required.');return;}
+  if(id){Object.assign(state.leads.find(l=>l.id===id),data);log(`UPDATED: ${data.name}`);}
+  else{state.leads.push({id:uid(),...data});log(`LEAD ADDED: ${data.name}`,data.org);}
+  saveState();closeModal('modal-lead');renderAll();
 }
 
-function openDossier(leadId) {
-  const lead = state.leads.find(l => l.id === leadId);
-  if (!lead) return;
-  document.getElementById('dossier-body').innerHTML = `
+function openDossier(leadId){
+  const l=state.leads.find(x=>x.id===leadId);if(!l)return;
+  const score=calcScore(l);
+  document.getElementById('dossier-body').innerHTML=`
     <div class="dossier">
-      <h4>Contact</h4>
-      <p><strong>${lead.name}</strong><br>${lead.org}<br>${lead.email || 'No email on file'}</p>
-      <h4>Classification</h4>
-      <p>Vertical: ${lead.vertical}<br>Status: ${lead.status}</p>
-      <h4>Known Intel / Pain Points</h4>
-      <p>${lead.notes || 'No notes recorded. Add notes from lead edit.'}</p>
+      <h4>Contact Intelligence</h4>
+      <p><strong>${l.name}</strong> · ${l.org}<br>${l.email||'No email on file'}<br>Vertical: ${l.vertical}</p>
+      <h4>Lead Score Analysis</h4>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        ${scoreBadge(score)}
+        <div style="flex:1;background:var(--border);height:8px;border-radius:4px;overflow:hidden"><div style="width:${score}%;height:100%;background:${scoreColor(score)}"></div></div>
+      </div>
+      <div class="score-breakdown">
+        <div class="score-row"><div class="score-row-label">Engagement Weight</div><div class="score-row-val">${l.scoreEngagement||5}/10</div></div>
+        <div class="score-row"><div class="score-row-label">Response Speed</div><div class="score-row-val">${l.scoreSpeed||5}/10</div></div>
+        <div class="score-row"><div class="score-row-label">Strategic Fit</div><div class="score-row-val">${l.scoreFit||5}/10</div></div>
+        <div class="score-row"><div class="score-row-label">Decay Status</div><div class="score-row-val">${decayLabel(l)}</div></div>
+      </div>
+      <h4>Revenue Projection</h4>
+      <p>Deal Value: <strong style="color:var(--accent)">${l.value?'$'+fmtNum(l.value):'Not set'}</strong><br>
+      Stage Multiplier: ${STAGE_MULT[l.status]||0.3}<br>
+      Expected Value: <strong style="color:var(--accent)">${l.value?'$'+fmtNum((score/100)*(l.value)*(STAGE_MULT[l.status]||0.3)):'—'}</strong></p>
+      <h4>Intel / Pain Points</h4>
+      <p>${l.notes||'No notes recorded.'}</p>
       <h4>Recommended Approach</h4>
-      <p>${getDossierRecommendation(lead)}</p>
-      <h4>Talking Points</h4>
-      <p>• 99.7% faster than traditional production<br>
-         • 200+ controlled variants per brief<br>
-         • Sub-1% semantic drift — full traceability<br>
-         • Human approval gates at every stage<br>
-         • API-first, no rip-and-replace required<br>
-         • Full audit trail for IG and oversight review</p>
-      <h4>Next Recommended Action</h4>
-      <p>${getNextAction(lead)}</p>
-      <div style="margin-top:16px;font-size:10px;color:var(--muted)">Generated: ${new Date().toLocaleString()} · TRESTLEBOARD OPS</div>
+      <p>${getApproach(l)}</p>
+      <h4>Trestleboard Talking Points</h4>
+      <p>• 99.7% faster narrative production than traditional contractors<br>
+      • 200+ controlled variants per brief — platform-specific, audience-tailored<br>
+      • Sub-1% semantic drift with full source traceability<br>
+      • Human approval gates at every stage — IG and oversight-ready<br>
+      • API-first architecture — zero rip-and-replace required<br>
+      • Principal-level access — direct engagement with Roman (CEO)</p>
+      <h4>Pre-emptive Objection Counter</h4>
+      <p>${getObjCounter(l)}</p>
+      <h4>Next Action</h4>
+      <p style="color:var(--accent)">${getNextAction(l)}</p>
+      <div style="margin-top:16px;font-size:9px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px">CLAWBOT v2.0 // TRESTLEBOARD GROUP LLC // INTERNAL // ${new Date().toLocaleString()}</div>
     </div>`;
   openModal('modal-dossier');
 }
-function getDossierRecommendation(lead) {
-  const map = {
-    'Federal DoD': 'Lead with operational speed and audit compliance. Reference NDAA requirements and IG oversight obligations.',
-    'Federal Civilian': 'Emphasize governance layer and zero-silo integration. Reference FISMA/FedRAMP alignment pathway.',
-    'Municipal Gov': 'Focus on civic communication speed and consistency. Reference constituent engagement and crisis response.',
-    'Defense Contractor': 'Position as force multiplier for existing PAO contracts. Subcontracting or teaming arrangement.',
-    'Law Firm': 'Lead with patent pipeline governance and attorney review gates. Emphasize audit trail.',
-    'Congressional': 'Constituent communication at scale. Crisis response and rapid message adaptation.',
-    'Corporate Comms': 'Brand consistency across platforms, semantic drift prevention, speed-to-market.'
+function getApproach(l){
+  const m={
+    'Federal DoD':'Lead with operational speed and IG audit compliance. Reference NDAA requirements, contested information environment doctrine, and 99.7% faster delivery vs. traditional PAO contractors.',
+    'IC / Special Programs':'Emphasize zero-silo architecture and API-first integration with existing intelligence workflows. Classified program briefing available upon request.',
+    'SOCOM':'Position as psychological operations and information warfare accelerator. Speed + governance = operational advantage in contested environments.',
+    'Federal Civilian':'Focus on governance layer and FedRAMP alignment pathway. Reference FISMA compliance posture and zero-silo integration.',
+    'Municipal Gov':'Emphasize constituent communication speed and crisis response capability. Reference recent municipal communications failures in comparable cities.',
+    'Defense Contractor':'Teaming and subcontracting value-add for existing PAO and comms contracts. Force multiplier framing.',
+    'Law Firm / Patent':'Lead with patent pipeline governance and attorney review gates. Full audit trail = malpractice risk reduction.',
+    'Congressional':'Constituent communication at scale with rapid message adaptation for crisis response and campaign environments.'
   };
-  return map[lead.vertical] || 'Customize approach based on specific organizational needs.';
+  return m[l.vertical]||'Customize approach based on specific organizational context and procurement readiness.';
 }
-function getNextAction(lead) {
-  const map = {
-    'Identified': 'Send first-touch outreach email. Reference a specific recent public statement or pain point.',
-    'Contacted': 'Follow up in 4 days if no response. Try alternate channel (LinkedIn or phone).',
-    'Responded': 'Schedule a 30-minute discovery call. Prepare capability overview.',
-    'Briefing Scheduled': 'Prepare tailored capability deck. Research org structure and recent initiatives.',
-    'Proposal Sent': 'Follow up in 5 business days. Offer to answer questions or schedule a technical demo.',
-    'Closed': 'Onboarding initiated. Assign account manager and schedule kickoff.'
-  };
-  return map[lead.status] || 'Review current status and determine appropriate next step.';
+function getObjCounter(l){
+  const top=state.objections.filter(o=>o.vertical===l.vertical||o.vertical==='All').slice(0,2);
+  if(!top.length)return'No objection patterns logged for this vertical yet. Log patterns as you encounter them.';
+  return top.map(o=>`<strong style="color:var(--warn)">"${o.type}"</strong> → ${o.counter||'Counter not recorded'}`).join('<br><br>');
+}
+function getNextAction(l){
+  const m={Qualified:'Send first-touch outreach. Reference a specific pain point or recent public statement.',Briefing:'Follow up within 48h. Prepare tailored capability deck.',Proposal:'Schedule 30-min discovery call. Offer technical demo.',Negotiation:'Follow up in 5 business days. Address outstanding objections directly.',Verbal:'Prepare contract terms. Coordinate with legal.',Closed:'Initiate onboarding. Schedule kickoff call.'};
+  return m[l.status]||'Assess current stage and determine appropriate engagement approach.';
 }
 
-function openNewCampaign() { openModal('modal-campaign'); }
-function triggerCampaign() {
-  const name = document.getElementById('camp-name').value.trim();
-  const vertical = document.getElementById('camp-vertical').value;
-  const type = document.getElementById('camp-type').value;
-  const brief = document.getElementById('camp-brief').value.trim();
-  if (!name) { alert('Campaign name required.'); return; }
-  state.campaigns.push({
-    id: uid(), name, vertical, type, brief,
-    created: new Date().toISOString(), status: 'Active',
-    steps: [
-      { day: 'D1', label: 'First Touch', done: false },
-      { day: 'D4', label: 'Follow-Up', done: false },
-      { day: 'D10', label: 'Final Push', done: false }
-    ]
-  });
-  log(`CAMPAIGN LAUNCHED: ${name}`, `${type} → ${vertical}`);
-  saveState(); closeModal('modal-campaign');
-  document.getElementById('camp-name').value = '';
-  document.getElementById('camp-brief').value = '';
-  renderAll(); showSectionDirect('outreach');
-  toast('Campaign launched');
+function openNewCampaign(){openModal('modal-campaign');}
+function triggerCampaign(){
+  const name=document.getElementById('camp-name').value.trim();
+  if(!name){alert('Campaign name required.');return;}
+  state.campaigns.push({id:uid(),name,vertical:document.getElementById('camp-vertical').value,type:document.getElementById('camp-type').value,brief:document.getElementById('camp-brief').value.trim(),created:new Date().toISOString(),status:'Active',steps:[{day:'D1',label:'First Touch',done:false},{day:'D4',label:'Follow-Up',done:false},{day:'D10',label:'Final Push',done:false}]});
+  log(`CAMPAIGN LAUNCHED: ${name}`);
+  saveState();closeModal('modal-campaign');
+  document.getElementById('camp-name').value='';document.getElementById('camp-brief').value='';
+  renderAll();toast('Campaign launched');
 }
 
-function openNewBrief() { openModal('modal-brief'); }
-function submitBrief() {
-  const title = document.getElementById('brief-title').value.trim();
-  const type = document.getElementById('brief-type').value;
-  const body = document.getElementById('brief-body').value.trim();
-  const channels = ['telegram','whatsapp','discord','email','web'].filter(c => document.getElementById('ch-'+c)?.checked).map(c => c.charAt(0).toUpperCase()+c.slice(1));
-  if (!title || !body) { alert('Title and brief required.'); return; }
-  state.content.push({ id: uid(), title, type, body, channels, status: 'Pending', created: new Date().toISOString() });
-  log(`BRIEF SUBMITTED: ${title}`, `Channels: ${channels.join(', ')}`);
-  saveState(); closeModal('modal-brief');
-  document.getElementById('brief-title').value = '';
-  document.getElementById('brief-body').value = '';
-  renderAll(); showSectionDirect('content');
-  toast('Brief submitted for review');
+function openNewBrief(){openModal('modal-brief');}
+function submitBrief(){
+  const title=document.getElementById('brief-title').value.trim();
+  const body=document.getElementById('brief-body').value.trim();
+  if(!title||!body){alert('Title and brief required.');return;}
+  const channels=['telegram','whatsapp','discord','email','web'].filter(c=>document.getElementById('ch-'+c)?.checked).map(c=>c.charAt(0).toUpperCase()+c.slice(1));
+  state.content.push({id:uid(),title,type:document.getElementById('brief-type').value,priority:document.getElementById('brief-priority').value,body,channels,status:'Pending',created:new Date().toISOString()});
+  log(`BRIEF SUBMITTED: ${title}`,channels.join(', '));
+  saveState();closeModal('modal-brief');
+  document.getElementById('brief-title').value='';document.getElementById('brief-body').value='';
+  renderAll();toast('Brief submitted for review');
 }
 
-function openScheduleMeeting() {
-  const sel = document.getElementById('meeting-lead');
-  sel.innerHTML = state.leads.filter(l=>l.status!=='Archived').map(l => `<option value="${l.id}">${l.name} — ${l.org}</option>`).join('');
-  if (!sel.innerHTML) { alert('Add a lead first.'); return; }
+function openScheduleMeeting(){
+  const sel=document.getElementById('meeting-lead');
+  sel.innerHTML=state.leads.filter(l=>l.status!=='Archived').map(l=>`<option value="${l.id}">${l.name} — ${l.org}</option>`).join('');
+  if(!sel.innerHTML){alert('Add a lead first.');return;}
   openModal('modal-meeting');
 }
-function saveMeeting() {
-  const leadId = document.getElementById('meeting-lead').value;
-  const datetime = document.getElementById('meeting-datetime').value;
-  const format = document.getElementById('meeting-format').value;
-  const notes = document.getElementById('meeting-notes').value.trim();
-  const lead = state.leads.find(l => l.id === leadId);
-  if (lead) { lead.status = 'Briefing Scheduled'; lead.lastTouch = new Date().toLocaleDateString(); }
-  state.meetings.push({ id: uid(), leadId, datetime, format, notes, outcome: null, created: new Date().toISOString() });
-  log(`BRIEFING SCHEDULED: ${lead?.name || leadId}`, `${format} · ${datetime}`);
-  saveState(); closeModal('modal-meeting');
-  document.getElementById('meeting-notes').value = '';
-  renderAll(); showSectionDirect('meetings');
-  toast('Briefing scheduled');
+function saveMeeting(){
+  const leadId=document.getElementById('meeting-lead').value;
+  const l=state.leads.find(x=>x.id===leadId);
+  if(l){l.status='Briefing';l.lastTouch=new Date().toISOString();}
+  state.meetings.push({id:uid(),leadId,datetime:document.getElementById('meeting-datetime').value,format:document.getElementById('meeting-format').value,notes:document.getElementById('meeting-notes').value.trim(),outcome:null,created:new Date().toISOString()});
+  log(`BRIEFING SCHEDULED: ${l?.name||leadId}`);
+  saveState();closeModal('modal-meeting');
+  document.getElementById('meeting-notes').value='';
+  renderAll();toast('Briefing scheduled');
 }
 
-// ═══════════════════════════════════════════════════════════
-// EXPORT
-// ═══════════════════════════════════════════════════════════
-function exportLeads() {
-  const csv = ['Name,Organization,Vertical,Email,Status,LastTouch,Notes',
-    ...state.leads.map(l => `"${l.name}","${l.org}","${l.vertical}","${l.email||''}","${l.status}","${l.lastTouch||''}","${l.notes||''}"`)
-  ].join('\n');
-  downloadFile('trestleboard-leads.csv', csv, 'text/csv');
-  log('EXPORTED: Lead Registry');
-}
-function exportDossier() {
-  window.print();
-  log('EXPORTED: Dossier (print)');
-}
-function downloadFile(name, content, type) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], {type}));
-  a.download = name;
-  a.click();
+// ═══════════════════════════════════════════════════════
+// INTELLIGENCE SCAN
+// ═══════════════════════════════════════════════════════
+function runIntelligenceScan(){
+  const stale=state.leads.filter(l=>!['Closed','Archived'].includes(l.status)&&decayDays(l)>3);
+  const noValue=state.leads.filter(l=>!l.value&&!['Closed','Archived'].includes(l.status));
+  let msg=`INTELLIGENCE SCAN — ${new Date().toLocaleString()}\n\n`;
+  msg+=`Active leads: ${state.leads.filter(l=>!['Closed','Archived'].includes(l.status)).length}\n`;
+  msg+=`Decay alerts: ${stale.length} leads stale 72h+\n`;
+  msg+=`Missing deal value: ${noValue.length} leads\n`;
+  msg+=`Pipeline EV: $${fmtNum(calcEV().base)} (base case)\n`;
+  msg+=`Campaigns running: ${state.campaigns.filter(c=>c.status==='Active').length}\n`;
+  msg+=`Content pending review: ${state.content.filter(c=>c.status==='Pending').length}`;
+  alert(msg);
+  log('INTELLIGENCE SCAN','Manual scan executed');
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // UTILS
-// ═══════════════════════════════════════════════════════════
-function uid() { return Math.random().toString(36).substr(2,9) + Date.now().toString(36); }
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = '▸ ' + msg.toUpperCase();
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
-}
-function showSectionDirect(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('section-'+id).classList.add('active');
-  document.querySelectorAll('.nav button').forEach(b => { if (b.textContent.toLowerCase().includes(id)) b.classList.add('active'); });
-}
+// ═══════════════════════════════════════════════════════
+function uid(){return Math.random().toString(36).substr(2,9)+Date.now().toString(36);}
+function fmtNum(n){if(!n)return'0';if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(0)+'K';return Math.round(n).toLocaleString();}
+function toast(msg){const t=document.getElementById('toast');t.textContent='▸ '+msg.toUpperCase();t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();}
+function exportLeads(){const csv=['Name,Org,Vertical,Email,Status,Score,DealValue,LastTouch,Notes',...state.leads.map(l=>`"${l.name}","${l.org}","${l.vertical}","${l.email||''}","${l.status}","${calcScore(l)}","${l.value||''}","${l.lastTouch||''}","${l.notes||''}"`)].join('\n');dl('clawbot-leads.csv',csv,'text/csv');log('EXPORTED: Leads CSV');}
+function exportLog(){const csv=['Time,Actor,Action,Detail',...state.auditLog.map(e=>`"${e.time}","${e.actor}","${e.action}","${e.detail||''}"`)].join('\n');dl('clawbot-audit.csv',csv,'text/csv');}
+function clearLog(){if(confirm('Clear all audit log entries?')){state.auditLog=[];saveState();renderAll();}}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // CLOCK
-// ═══════════════════════════════════════════════════════════
-function updateClock() {
-  document.getElementById('current-time').textContent = new Date().toLocaleString('en-US',{timeZone:'America/New_York',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' EST';
-}
-setInterval(updateClock, 1000);
-updateClock();
+// ═══════════════════════════════════════════════════════
+function updateClock(){const el=document.getElementById('current-time');if(el)el.textContent=new Date().toLocaleString('en-US',{timeZone:'America/New_York',hour12:false,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})+' EST';}
+setInterval(updateClock,1000);updateClock();
 
-// ═══════════════════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════════════════
-function checkAuth() {
-  const val = document.getElementById('auth-input').value;
-  if (val === 'Mufasa1945') {
-    sessionStorage.setItem('tbl_auth', '1');
-    document.getElementById('auth-gate').classList.add('hidden');
-    document.getElementById('auth-error').textContent = '';
-  } else {
-    document.getElementById('auth-error').textContent = 'ACCESS DENIED — INVALID CREDENTIALS';
-    document.getElementById('auth-input').value = '';
-  }
-}
-function initAuth() {
-  if (sessionStorage.getItem('tbl_auth') === '1') {
-    document.getElementById('auth-gate').classList.add('hidden');
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 initAuth();
 loadState();
 renderAll();
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-});
 </script>
 </body>
 </html>
