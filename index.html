@@ -2280,11 +2280,43 @@ function loadAgentIntel() {
   if(typeof renderDiscovery === 'function') renderDiscovery();
 }
 
+// Apollo-verified contacts (enriched via Apollo.io API — verified emails)
+const APOLLO_VERIFIED_LEADS = [
+  {id:"apollo_001",source:"Apollo.io — Verified",name:"Matthew Fay",org:"HII Mission Technologies",vertical:"Defense Contractor",confidence:95,intel:"VP Capture Management — HII $48.7M USAF Info Ops contract EXPIRED Sept 2025. This is the teaming decision-maker for the recompete. Falls Church VA.\n\nApproach: TEAMING — USAF IO narrative recompete. Lead with AI-speed and variant depth.\nEmail (verified): mfay@alionscience.com\nLinkedIn: linkedin.com/in/matthew-fay-b31ab37",addedAt:new Date().toISOString()},
+  {id:"apollo_002",source:"Apollo.io — Verified",name:"Robert Sebastianelli",org:"HII Mission Technologies",vertical:"Defense Contractor",confidence:95,intel:"Capture Director — HII $48.7M USAF contract expired Sept 2025. Capture Director owns the recompete BD. Chantilly VA.\n\nApproach: TEAMING — Direct capture lead. Pitch Trestleboard as AI narrative subcontractor for recompete.\nEmail (verified): robert.sebastianelli@hii.com\nLinkedIn: linkedin.com/in/robert-sebastianelli-4812261a",addedAt:new Date().toISOString()},
+  {id:"apollo_003",source:"Apollo.io — Verified",name:"Jaime Orlando",org:"HII Mission Technologies",vertical:"Defense Contractor",confidence:90,intel:"SVP Communications — oversees all narrative and public affairs across HII contracts. Washington DC.\n\nApproach: PARTNERSHIP — Senior relationship. Position Trestleboard as AI content engine for HII's comms portfolio.\nEmail (verified): jaime.orlando@hii-tsd.com\nLinkedIn: linkedin.com/in/jaimeokeefe",addedAt:new Date().toISOString()},
+  {id:"apollo_004",source:"Apollo.io — Verified",name:"Trish Csank",org:"LMI (Tysons, VA)",vertical:"Defense Contractor",confidence:97,intel:"VP Military Logistics Business Development — LMI holds $83.4M WHS/OSD StrComms contract EXPIRED July 2025. VP BD owns the recompete strategy. THIS IS THE HOTTEST LEAD. Baltimore MD.\n\nApproach: TEAMING — $83M OSD recompete is OPEN NOW. Position Trestleboard as narrative/AI subcontractor on their next WHS bid.\nEmail (verified): patricia.csank@lmi.org\nLinkedIn: linkedin.com/in/trisha-csank",addedAt:new Date().toISOString()},
+  {id:"apollo_005",source:"Apollo.io — Verified",name:"Caitlyn Ottinger",org:"LMI (Tysons, VA)",vertical:"Defense Contractor",confidence:92,intel:"VP Marketing & Communications — internal comms buyer AND external contract strategist. Bristol VT.\n\nApproach: DIRECT — Pitch as AI narrative production partner for LMI's own communications + their OSD contract work.\nEmail (verified): caitlyn.ottinger@lmi.org\nLinkedIn: linkedin.com/in/caitlyn-o-57b7a8170",addedAt:new Date().toISOString()},
+  {id:"apollo_006",source:"Apollo.io — Verified",name:"Marc Melkonian",org:"Booz Allen Hamilton",vertical:"Defense Contractor",confidence:91,intel:"Strategic Capture Director — Booz Allen holds $41.7M USAF + $9.8M DISA comms contracts. Capture Director for DoD accounts. Baltimore MD.\n\nApproach: TEAMING — Position as AI narrative layer under BAH's DoD comms programs.\nEmail (verified): melkonian_marc@bah.com\nLinkedIn: linkedin.com/in/marcmelkonian",addedAt:new Date().toISOString()},
+  {id:"apollo_007",source:"Apollo.io — Verified (Government Buyer)",name:"Whitney Trimble",org:"Defense Health Agency (DHA)",vertical:"Federal DoD",confidence:98,intel:"DIRECT GOVERNMENT BUYER — Director of Public Affairs and Community Outreach at DHA. DHA is spending $35M+ on comms contracts RIGHT NOW. This is the end-client decision-maker. Falls Church VA.\n\nApproach: DIRECT PITCH — DHA is actively buying. Lead with constituent comms acceleration, 200+ variant narrative production. Government email — use formal tone.\nEmail (verified): whitney.trimble@health.mil\nLinkedIn: linkedin.com/in/whitney-trimble-ma-scmp",addedAt:new Date().toISOString()},
+  {id:"apollo_008",source:"Apollo.io — Verified",name:"Scott Gardner",org:"Ipsos Public Affairs",vertical:"Federal Civilian",confidence:88,intel:"VP — Ipsos holds $35.2M DHA Public Affairs contract through Nov 2026. VP is a relationship to lock in for teaming on renewal.\n\nApproach: PARTNERSHIP — Ipsos does research, Trestleboard does narrative execution. Pitch as their content production arm for DHA renewal.\nEmail (verified): scott.gardner@ipsos.com\nLinkedIn: linkedin.com/in/sgardner7",addedAt:new Date().toISOString()},
+  {id:"apollo_009",source:"Apollo.io — Verified",name:"Sanyam Sethi",org:"Ipsos Public Affairs",vertical:"Federal Civilian",confidence:87,intel:"VP Public Affairs — $35.2M DHA contract. Key relationship for teaming on 2026 renewal. Toronto ON.\n\nApproach: PARTNERSHIP — Public Affairs VP is the strongest narrative fit. Ipsos research + Trestleboard narrative = complete offering.\nEmail (verified): sanyam.sethi@ipsos.com\nLinkedIn: linkedin.com/in/sanyamsethi",addedAt:new Date().toISOString()}
+];
+
+function loadApolloLeads() {
+  if(!state.discoveryQueue) state.discoveryQueue = [];
+  let added = 0;
+  APOLLO_VERIFIED_LEADS.forEach(lead => {
+    if(!state.discoveryQueue.find(x => x.id === lead.id)) {
+      state.discoveryQueue.push(lead);
+      added++;
+    }
+  });
+  if(added > 0) {
+    log('APOLLO ENRICHMENT', `${added} verified contacts loaded`);
+    saveState();
+  }
+}
+
 // Auto-load on first run (once)
 (function(){
   if(!localStorage.getItem('claw_intel_v1')) {
     loadAgentIntel();
     localStorage.setItem('claw_intel_v1','1');
+  }
+  if(!localStorage.getItem('claw_apollo_v1')) {
+    loadApolloLeads();
+    localStorage.setItem('claw_apollo_v1','1');
   }
 })();
 
