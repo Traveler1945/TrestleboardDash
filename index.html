@@ -403,6 +403,20 @@ select{cursor:pointer}
 </style>
 </head>
 <body>
+<div id="auth-gate">
+  <div class="auth-box">
+    <div class="auth-logo">TRESTLEBOARD</div>
+    <div class="auth-tagline">Revenue Operations Command</div>
+    <div class="auth-div"></div>
+    <form onsubmit="checkAuth(event)">
+      <input type="password" id="auth-input" placeholder="ACCESS PHRASE" autocomplete="off">
+      <button type="submit" class="auth-btn">▸ AUTHENTICATE</button>
+    </form>
+    <div class="auth-error" id="auth-error"></div>
+    <div style="font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:24px">// INTERNAL USE ONLY // AUTHORIZED ACCESS ONLY</div>
+  </div>
+</div>
+
 
 
 
@@ -609,6 +623,260 @@ select{cursor:pointer}
   </div>
 </div>
 
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODALS                                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<!-- Lead Modal -->
+<div class="modal-overlay" id="modal-lead">
+  <div class="modal" style="width:620px">
+    <div class="modal-header">
+      <span class="modal-title" id="lead-modal-title">New Lead</span>
+      <button class="modal-close" onclick="closeModal('modal-lead')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lead-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Contact Name *</label><input type="text" id="lead-name" placeholder="Full Name"></div>
+        <div class="form-group"><label>Organization *</label><input type="text" id="lead-org" placeholder="Agency / Company"></div>
+        <div class="form-group"><label>Vertical</label>
+          <select id="lead-vertical">
+            <option>Federal DoD</option><option>IC / Special Programs</option><option>SOCOM</option>
+            <option>Federal Civilian</option><option>Municipal Gov</option><option>Defense Contractor</option>
+            <option>Law Firm / Patent</option><option>Congressional</option><option>Local Government</option>
+            <option>State Government</option><option>Local Business</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Stage</label>
+          <select id="lead-status">
+            <option>Qualified</option><option>Briefing</option><option>Proposal</option>
+            <option>Negotiation</option><option>Verbal</option><option>Closed</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="lead-email" placeholder="email@domain.gov"></div>
+        <div class="form-group"><label>Deal Value ($)</label><input type="number" id="lead-value" placeholder="0"></div>
+        <div class="form-group"><label>Engagement Score (0-10)</label><input type="number" id="score-engagement" min="0" max="10" value="5"></div>
+        <div class="form-group"><label>Response Speed (0-10)</label><input type="number" id="score-speed" min="0" max="10" value="5"></div>
+        <div class="form-group"><label>Strategic Fit (0-10)</label><input type="number" id="score-fit" min="0" max="10" value="5"></div>
+        <div class="form-group"><label>Psych Profile</label>
+          <select id="lead-psych">
+            <option value="Unknown">Unknown</option>
+            <option value="Authority-Driven (Senior Military / SES)">Authority-Driven (Senior Military / SES)</option>
+            <option value="Analytical (PM / Contracting Officer)">Analytical (PM / Contracting Officer)</option>
+            <option value="Collaborative (Civilian Director)">Collaborative (Civilian Director)</option>
+            <option value="Political (Congressional / Policy)">Political (Congressional / Policy)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Urgency (1=Low, 2=Med, 3=High)</label><input type="number" id="lead-urgency" min="1" max="3" value="2"></div>
+        <div class="form-group"><label>Days to Close (est.)</label><input type="number" id="lead-days" min="1" value="30"></div>
+      </div>
+      <div class="form-group"><label>Intel / Pain Points / Notes</label><textarea id="lead-notes" placeholder="Key intelligence, pain points, buying signals..."></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div class="form-group"><label>NBA Primary</label><input type="text" id="nba-primary" placeholder="Primary next action"></div>
+        <div class="form-group"><label>NBA Fallback</label><input type="text" id="nba-fallback" placeholder="If primary fails"></div>
+        <div class="form-group"><label>NBA Escalation</label><input type="text" id="nba-escalation" placeholder="Escalation path"></div>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="lead-hold"> Manual Hold</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="lead-contact-approved"> Contact Approved</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-lead')">Cancel</button>
+      <button class="btn primary" onclick="saveLead()">Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dossier Modal -->
+<div class="modal-overlay" id="modal-dossier">
+  <div class="modal" style="width:640px">
+    <div class="modal-header">
+      <span class="modal-title">Lead Intelligence Dossier</span>
+      <button class="modal-close" onclick="closeModal('modal-dossier')">×</button>
+    </div>
+    <div class="modal-body" id="dossier-body"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-dossier')">Close</button></div>
+  </div>
+</div>
+
+<!-- Contact Approve Modal -->
+<div class="modal-overlay" id="modal-contact-approve">
+  <div class="modal" style="width:460px">
+    <div class="modal-header">
+      <span class="modal-title">Approve Outreach Contact</span>
+      <button class="modal-close" onclick="closeModal('modal-contact-approve')">×</button>
+    </div>
+    <div class="modal-body"><div class="info-panel" id="contact-approve-text"></div></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-contact-approve')">Cancel</button>
+      <button class="btn success" onclick="confirmContactApproval()">✓ Confirm Approval</button>
+    </div>
+  </div>
+</div>
+
+<!-- Campaign Modal -->
+<div class="modal-overlay" id="modal-campaign">
+  <div class="modal" style="width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Launch Campaign</span>
+      <button class="modal-close" onclick="closeModal('modal-campaign')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Campaign Name *</label><input type="text" id="camp-name" placeholder="e.g. DHA Q4 Outreach"></div>
+      <div class="form-group"><label>Vertical</label>
+        <select id="camp-vertical">
+          <option>Federal DoD</option><option>IC / Special Programs</option><option>SOCOM</option>
+          <option>Federal Civilian</option><option>Municipal Gov</option><option>Defense Contractor</option><option>Congressional</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Campaign Type</label>
+        <select id="camp-type">
+          <option>Email Drip (D1→D4→D10)</option><option>LinkedIn Sequence</option><option>Multi-Channel</option>
+          <option>Phone + Email</option><option>Event Follow-Up</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Campaign Brief</label><textarea id="camp-brief" placeholder="Campaign goals and talking points..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-campaign')">Cancel</button>
+      <button class="btn primary" onclick="triggerCampaign()">Launch</button>
+    </div>
+  </div>
+</div>
+
+<!-- Brief Modal -->
+<div class="modal-overlay" id="modal-brief">
+  <div class="modal" style="width:520px">
+    <div class="modal-header">
+      <span class="modal-title">Submit Content Brief</span>
+      <button class="modal-close" onclick="closeModal('modal-brief')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Title *</label><input type="text" id="brief-title" placeholder="e.g. SOCOM Capability One-Pager"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="form-group"><label>Content Type</label>
+          <select id="brief-type">
+            <option>One-Pager</option><option>Email Sequence</option><option>Slide Deck</option>
+            <option>Case Study</option><option>Press Release</option><option>Social Post</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Priority</label>
+          <select id="brief-priority"><option value="NORMAL">Normal</option><option value="URGENT">URGENT</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Brief / Content *</label><textarea id="brief-body" style="min-height:120px" placeholder="Full brief, talking points, and context..."></textarea></div>
+      <div class="form-group"><label>Channels</label>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="ch-telegram"> Telegram</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="ch-whatsapp"> WhatsApp</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="ch-discord"> Discord</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="ch-email"> Email</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;text-transform:none;color:var(--text)"><input type="checkbox" id="ch-web"> Web</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-brief')">Cancel</button>
+      <button class="btn primary" onclick="submitBrief()">Submit Brief</button>
+    </div>
+  </div>
+</div>
+
+<!-- Meeting Modal -->
+<div class="modal-overlay" id="modal-meeting">
+  <div class="modal" style="width:460px">
+    <div class="modal-header">
+      <span class="modal-title">Schedule Briefing</span>
+      <button class="modal-close" onclick="closeModal('modal-meeting')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Lead *</label><select id="meeting-lead"></select></div>
+      <div class="form-group"><label>Date & Time</label><input type="datetime-local" id="meeting-datetime"></div>
+      <div class="form-group"><label>Format</label>
+        <select id="meeting-format">
+          <option>Video Call</option><option>In-Person</option><option>Phone</option><option>Site Visit</option><option>Conference</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Notes / Agenda</label><textarea id="meeting-notes" placeholder="Briefing agenda, talking points..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-meeting')">Cancel</button>
+      <button class="btn primary" onclick="saveMeeting()">Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Objection Modal -->
+<div class="modal-overlay" id="modal-objection">
+  <div class="modal" style="width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Log Objection</span>
+      <button class="modal-close" onclick="closeModal('modal-objection')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="obj-id">
+      <div class="form-group"><label>Objection Type *</label><input type="text" id="obj-type" placeholder="e.g. Budget / No Vehicle"></div>
+      <div class="form-group"><label>Vertical</label>
+        <select id="obj-vertical">
+          <option>All</option><option>Federal DoD</option><option>IC / Special Programs</option><option>SOCOM</option>
+          <option>Federal Civilian</option><option>Municipal Gov</option><option>Defense Contractor</option><option>Congressional</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Objection Text *</label><textarea id="obj-text" placeholder='"Quote the exact objection..."'></textarea></div>
+      <div class="form-group"><label>Counter / Playbook</label><textarea id="obj-counter" placeholder="How to overcome this objection..."></textarea></div>
+      <div class="form-group"><label>Outcome</label>
+        <select id="obj-outcome">
+          <option value="pending">Pending</option><option value="converted">Converted</option>
+          <option value="stalled">Stalled</option><option value="lost">Lost</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-objection')">Cancel</button>
+      <button class="btn primary" onclick="saveObjection()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Conflict Modal -->
+<div class="modal-overlay" id="modal-conflict">
+  <div class="modal" style="width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Agent Conflict</span>
+      <button class="modal-close" onclick="closeModal('modal-conflict')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="conflict-id">
+      <div class="form-group"><label>Deal / Context *</label><input type="text" id="conflict-deal" placeholder="e.g. DHA Q4 Proposal"></div>
+      <div class="form-group"><label>Agent A Position *</label><input type="text" id="conflict-agent-a" placeholder="Agent A name + position"></div>
+      <div class="form-group"><label>Agent B Position *</label><input type="text" id="conflict-agent-b" placeholder="Agent B name + position"></div>
+      <div class="form-group"><label>Options Considered</label><textarea id="conflict-options" placeholder="A vs B vs C..."></textarea></div>
+      <div class="form-group"><label>Status</label>
+        <select id="conflict-status"><option value="pending">Pending</option><option value="resolved">Resolved</option></select>
+      </div>
+      <div class="form-group"><label>Resolution</label><textarea id="conflict-resolution" placeholder="Resolution decision..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-conflict')">Cancel</button>
+      <button class="btn primary" onclick="saveConflict()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Strategic Brief Modal -->
+<div class="modal-overlay" id="modal-strategic">
+  <div class="modal" style="width:620px">
+    <div class="modal-header">
+      <span class="modal-title">Strategic Intelligence Brief</span>
+      <button class="modal-close" onclick="closeModal('modal-strategic')">×</button>
+    </div>
+    <div class="modal-body" id="strategic-brief-body"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-strategic')">Close</button></div>
+  </div>
+</div>
 
 <div id="toast"></div>
 
@@ -1056,16 +1324,16 @@ function mountIntelSections() {
   _intelMounted = true;
   const map = {
     'section-discovery-inner': `<div style="margin-bottom:16px"><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Discovery Mode</div><div class="discovery-toggle"><button id="disc-btn-OFF" class="disc-mode-btn active-off" onclick="setDiscoveryMode('OFF')">Off</button><button id="disc-btn-SEARCHING" class="disc-mode-btn" onclick="setDiscoveryMode('SEARCHING')">Searching</button><button id="disc-btn-PAUSED" class="disc-mode-btn" onclick="setDiscoveryMode('PAUSED')">Paused</button><button class="btn sm primary" onclick="runDiscoveryScan()">Run Scan</button></div><div style="margin-top:10px;display:flex;gap:8px;align-items:center"><input id="disc-webhook-input" type="text" placeholder="Webhook URL (optional)" style="flex:1;font-size:10px;padding:5px 8px" onchange="state.discoveryWebhook=this.value;saveState()"><span style="font-size:9px;color:var(--muted)">POST target for scan events</span></div></div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Discovery Queue</div><div style="overflow-x:auto"><table><thead><tr><th>Source</th><th>Name</th><th>Organization</th><th>Vertical</th><th>Confidence</th><th>Intel</th><th>Actions</th></tr></thead><tbody id="discovery-queue-tbody"></tbody></table></div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:16px 0 8px">Discovery Log</div><div id="disc-log-list" class="disc-log"></div>`,
-    'section-analytics-inner': "",
-    'section-forecast-inner': "",
-    'section-simulation-inner': "",
-    'section-outreach-inner': "",
-    'section-content-inner': "",
-    'section-objections-inner': "",
-    'section-meetings-inner': "",
-    'section-agents-inner': "",
-    'section-constraints-inner': "",
-    'section-auditlog-inner': "",
+    'section-analytics-inner': '<div class="chart-grid"><div class="chart-card"><div class="chart-card-title">Pipeline Funnel &amp; EV by Stage</div><canvas id="chart-funnel"></canvas></div><div class="chart-card"><div class="chart-card-title">Score Distribution</div><canvas id="chart-score-dist"></canvas></div><div class="chart-card"><div class="chart-card-title">Decay Health</div><canvas id="chart-decay-pie"></canvas></div><div class="chart-card"><div class="chart-card-title">EV Composition by Stage</div><canvas id="chart-ev-composition"></canvas></div><div class="chart-card full"><div class="chart-card-title">Priority Matrix</div><canvas id="chart-priority-matrix"></canvas></div></div>',
+    'section-forecast-inner': '<div class="section-header"><div class="section-title">Revenue Forecast</div><div class="section-actions"><button class="btn sm" onclick="renderForecast()">Recalculate</button></div></div><div class="forecast-grid"><div class="forecast-card conservative"><div class="forecast-val" id="fc-conservative">$0</div><div class="forecast-label">Conservative</div><div class="forecast-desc">Base \xd7 0.7</div></div><div class="forecast-card base"><div class="forecast-val" id="fc-base">$0</div><div class="forecast-label">Base Case</div><div class="forecast-desc">Probability-weighted EV</div></div><div class="forecast-card upside"><div class="forecast-val" id="fc-upside">$0</div><div class="forecast-label">Upside</div><div class="forecast-desc">Base \xd7 1.3</div></div></div><div id="pipeline-bars" style="margin-bottom:16px"></div><table><thead><tr><th>Lead</th><th>Stage</th><th>Score</th><th>Value</th><th>P(Close)</th><th>Mult</th><th>EV</th></tr></thead><tbody id="forecast-tbody"></tbody></table>',
+    'section-simulation-inner': '<div class="form-group"><label>Scenario Preset</label><select id="sim-scenario" onchange="applyScenarioPreset(this.value)"><option value="outreach_freq">Increase Outreach Frequency 20%</option><option value="linkedin_pivot">Shift to LinkedIn (IC vertical)</option><option value="discount_5">5% Pricing Discount Q4 Close</option><option value="roman_touch">Roman Personal Touch \u2014 Top 3 Deals</option><option value="callbot">Activate Call Bot on Stalled Sequences</option><option value="custom">Custom Scenario</option></select></div><div class="sim-grid"><div class="sim-card"><h4>Input Variables</h4><div class="sim-inputs"><div class="form-group"><label>Urgency Modifier</label><input type="number" id="sim-urgency" step="0.01" value="1.0"></div><div class="form-group"><label>Conv Rate \u0394 (%)</label><input type="number" id="sim-conv" step="1" value="0"></div><div class="form-group"><label>Cycle Time \u0394 (days)</label><input type="number" id="sim-cycle" step="1" value="0"></div></div><div class="form-group"><label>Agent Notes</label><textarea id="sim-notes" style="min-height:60px"></textarea></div><div style="display:flex;gap:6px"><button class="btn primary" onclick="runSimulation()">Run Simulation</button><button class="btn" onclick="resetSimulationForm()">Reset</button></div></div><div class="sim-card"><h4>Output</h4><pre class="sim-output" id="sim-output">Awaiting simulation...</pre></div></div>',
+    'section-outreach-inner': '<div class="section-header"><div class="section-title">Campaign Orchestration</div><div class="section-actions"><button class="btn sm primary" onclick="openNewCampaign()">+ New Campaign</button></div></div><div id="campaigns-list"></div>',
+    'section-content-inner': '<div class="section-header"><div class="section-title">Content Queue</div><div class="section-actions"><button class="btn sm primary" onclick="openNewBrief()">+ Submit Brief</button></div></div><div id="content-list"></div>',
+    'section-objections-inner': '<div class="section-header"><div class="section-title">Objection Registry</div><div class="section-actions"><button class="btn sm primary" onclick="openAddObjection()">+ Log Objection</button></div></div><div id="objections-list"></div>',
+    'section-meetings-inner': '<div class="section-header"><div class="section-title">Briefings &amp; Meetings</div><div class="section-actions"><button class="btn sm primary" onclick="openScheduleMeeting()">+ Schedule Briefing</button></div></div><div id="meetings-list"></div>',
+    'section-agents-inner': '<div class="section-header"><div class="section-title">Agent Mesh</div><div class="section-actions"><button class="btn sm" onclick="syncAgentOutputs()">Sync Agents</button><button class="btn sm primary" onclick="openConflictModal(null)">+ Log Conflict</button></div></div><div class="agent-grid" id="agent-grid"></div><div style="margin-top:16px"><div style="font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Active Conflicts</div><div id="conflict-list"></div></div>',
+    'section-constraints-inner': '<div id="constraints-list" style="padding-left:16px;font-size:11px;line-height:2;color:var(--text)"></div>',
+    'section-auditlog-inner': '<div class="section-header"><div class="section-title">Audit Log</div><div class="section-actions"><button class="btn sm" onclick="exportLog()">Export CSV</button><button class="btn sm danger" onclick="clearLog()">Clear</button></div></div><div id="audit-log-list"></div>',
   };
   Object.entries(map).forEach(([id, html]) => {
     const el = document.getElementById(id);
@@ -1219,7 +1487,7 @@ async function checkAuth(event) {
   }
   const valid = await verifySecret(secret);
   if(valid) {
-    sessionStorage.setItem('claw_auth','1');
+    setClawSession();
     sessionStorage.removeItem('claw_brief_seen');
     setAuthMeta({ attempts: 0, lockedUntil: 0 });
     errorEl.textContent = '';
@@ -1245,7 +1513,7 @@ async function checkAuth(event) {
 function initAuth() {
   const gate = document.getElementById('auth-gate');
   const errorEl = document.getElementById('auth-error');
-  if(sessionStorage.getItem('claw_auth')==='1') {
+  if(getClawSession()) {
     gate.classList.add('hidden');
     return;
   }
@@ -1277,6 +1545,27 @@ async function sha256Hex(str) {
   const data = new TextEncoder().encode(str);
   const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── SESSION TOKEN (localStorage, TTL-based) ──────────────────────────
+const CLAW_SESSION_KEY = 'clawbot_session';
+function setClawSession() {
+  const token = Array.from(
+    window.crypto.getRandomValues(new Uint8Array(16))
+  ).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const ttl = (window.CLAW?.CONFIG?.AUTH?.sessionTTL) || 28800000; // 8h default
+  localStorage.setItem(CLAW_SESSION_KEY, JSON.stringify({ token, expiry: Date.now() + ttl }));
+  return token;
+}
+function getClawSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(CLAW_SESSION_KEY));
+    if (s && s.token && s.expiry > Date.now()) return s.token;
+  } catch(e) {}
+  return null;
+}
+function clearClawSession() {
+  localStorage.removeItem(CLAW_SESSION_KEY);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2079,7 +2368,7 @@ function calcAverageCycle(){
 function fmtCurrency(n){return '$'+fmtNum(n||0);}
 
 function maybeAutoBrief(){
-  if(sessionStorage.getItem('claw_auth')==='1' && !sessionStorage.getItem('claw_brief_seen')){
+  if(getClawSession() && !sessionStorage.getItem('claw_brief_seen')){
     openStrategicBrief();
     sessionStorage.setItem('claw_brief_seen','1');
   }
@@ -2687,7 +2976,7 @@ renderAll = function() {
 // ─── AGENT DISCOVERY INTEL IMPORT ────────────────────────
 // Injects pre-researched leads into the discovery queue.
 // Source: USAspending.gov DoD contract database + public records
-const AGENT_INTEL_LEADS = [{"id":"disc_001","source":"USAspending.gov — DoD Contract Recompete","name":"Business Development Director","org":"LMI Consulting, LLC","vertical":"Defense Contractor","confidence":92,"intel":"CRITICAL RECOMPETE: $83.4M WHS/OSD Strategic Communications & Admin Support contract EXPIRED July 2025. Active recompete window open NOW. LMI is the incumbent — they will be scrambling to rebuild and partner. Angle: Trestleboard as narrative/AI content subcontractor on recompete bid. Contact BD or Capture team.","linkedinSearch":"site:linkedin.com LMI Consulting strategic communications director","email":"bd@lmi.org (format — verify)","contractRef":"WHS $83.4M expired 2025-07-22","approach":"TEAMING — Position as AI-native subcontractor on their OSD recompete. Lead with 99.7% faster narrative production and IG-ready audit trail."},{"id":"disc_002","source":"USAspending.gov — DoD Contract Expiring","name":"VP Strategic Communications","org":"HII Mission Technologies Corp","vertical":"Defense Contractor","confidence":89,"intel":"RECOMPETE WINDOW: $48.7M USAF Info Ops / Applied Research contract EXPIRED Sept 2025. HII Mission Technologies is a top-tier DoD contractor. Angle: Team on USAF narrative/IO recompete.","linkedinSearch":"site:linkedin.com HII Mission Technologies strategic communications capture manager","email":"capture@hii.com (format — verify)","contractRef":"USAF $48.7M expired 2025-09-15","approach":"TEAMING — Strategic communications/narrative as add-on to their IO portfolio. Reference USAF contested information environment doctrine."},{"id":"disc_003","source":"USAspending.gov — DHA Contract Just Expired","name":"Program Director","org":"Deloitte Consulting LLP (Defense Health Agency)","vertical":"Defense Contractor","confidence":87,"intel":"HOT: $39.2M Defense Health Agency program management/comms contract EXPIRED Feb 2026. DHA is one of DoD's largest communications buyers. Contact DHA practice BD lead.","linkedinSearch":"site:linkedin.com Deloitte Defense Health Agency strategic communications director","email":"defense@deloitte.com (format — verify)","contractRef":"DHA $39.2M expired 2026-02-15","approach":"TEAMING — Offer AI narrative production as differentiator in Deloitte's DHA recompete package."},{"id":"disc_004","source":"USAspending.gov — USAF Contract Expiring NOW","name":"Contracts & Capture Manager","org":"CACI, Inc. - Federal","vertical":"Defense Contractor","confidence":85,"intel":"URGENT: $32.4M USAF IT/comms application support contract expires March 2026 — in active recompete window RIGHT NOW. CACI is a major prime — teaming opportunity for Trestleboard's narrative/comms layer.","linkedinSearch":"site:linkedin.com CACI Federal strategic communications Air Force capture","email":"businessdev@caci.com (format — verify)","contractRef":"USAF $32.4M expires 2026-03-31","approach":"TEAMING — Pitch as rapid narrative/content subcontractor on USAF recompete. CACI already knows the space; position Trestleboard as their AI edge."},{"id":"disc_005","source":"USAspending.gov — DHA Contract Expiring THIS MONTH","name":"Director of Strategic Communications","org":"Chickasaw Aerospace, LLC","vertical":"Defense Contractor","confidence":88,"intel":"EXPIRING: $15.95M DHA Director/DAG Strategic Communications, Engagements, Protocol & Archives contract expires March 2026 — THIS MONTH. 8(a) small business — they may be losing this contract or recompeting. Trestleboard can position as successor or teaming partner.","linkedinSearch":"site:linkedin.com Chickasaw Aerospace strategic communications","email":"info@chickasawaerospace.com (format — verify)","contractRef":"DHA $15.95M expires 2026-03-16","approach":"DIRECT APPROACH or TEAMING — This contract ends THIS MONTH. DHA will need a replacement. Pitch DHA directly or help Chickasaw on transition."},{"id":"disc_006","source":"USAspending.gov — DISA Contract Just Expired","name":"BD Director","org":"Command Post Technologies, Inc.","vertical":"Defense Contractor","confidence":80,"intel":"$25.8M DISA IT/comms support contract expired Feb 2026. Small business — may be looking for teaming partners. DISA is a heavy comms buyer.","linkedinSearch":"site:linkedin.com Command Post Technologies business development DISA","email":"info@commandposttechnologies.com (format — verify)","contractRef":"DISA $25.8M expired 2026-02-03","approach":"TEAMING — Approach as AI-native narrative partner for DISA recompete effort."},{"id":"disc_007","source":"USAspending.gov — Ipsos Public Affairs Active Contract","name":"Federal Practice Leader","org":"Ipsos Public Affairs, LLC","vertical":"Federal Civilian","confidence":78,"intel":"$35.2M DHA public affairs & program support contract active through Nov 2026. Ipsos does research; Trestleboard does narrative production. Complementary offering.","linkedinSearch":"site:linkedin.com Ipsos Public Affairs Defense Health federal","email":"publicaffairs@ipsos.com (format — verify)","contractRef":"DHA $35.2M active through 2026-11-30","approach":"PARTNERSHIP — Pitch as Ipsos's content execution arm for DHA contract. Research + narrative = complete offering."},{"id":"disc_008","source":"USAspending.gov — Navy Active Contract","name":"Program Manager","org":"Next Intelligence Solutions, LLC","vertical":"Defense Contractor","confidence":75,"intel":"$9.53M Navy administrative/comms support contract through Aug 2026. Veteran-owned small business — strong alignment with Trestleboard's positioning. Recompete window opens early 2026.","linkedinSearch":"site:linkedin.com Next Intelligence Solutions Navy communications","email":"info@nextintelligencesolutions.com (format — verify)","contractRef":"Navy $9.53M expires 2026-08-31","approach":"TEAMING — Small business alignment. Pitch recompete teaming with shared veteran/DoD community positioning."},{"id":"disc_009","source":"USAspending.gov — USAF Communications Contract","name":"Director of Communications Programs","org":"Innovative Technology Solutions JV, LLC","vertical":"Defense Contractor","confidence":77,"intel":"$9.3M USAF Professional Communications Support through June 2027. PSC code = direct comms professional services. Clean contract match to Trestleboard capability. ITS JV is a joint venture looking to grow.","linkedinSearch":"site:linkedin.com Innovative Technology Solutions Air Force communications","email":"bd@itsolvjv.com (format — verify)","contractRef":"USAF $9.3M expires 2027-06-02 PSC:COMMUNICATIONS","approach":"TEAMING — Direct PSC match. Position as AI narrative subcontractor on their USAF communications programs."},{"id":"disc_010","source":"USAspending.gov + Public Record — Active Buyer","name":"Director, Strategic Communications","org":"Defense Health Agency (DHA)","vertical":"Federal DoD","confidence":83,"intel":"DHA is one of the most active DoD comms buyers — multiple large contracts expiring 2026. Active procurement cycle NOW. Office of Communications & Public Affairs at 7700 Arlington Blvd, Falls Church VA. Multiple recompetes in play simultaneously.","linkedinSearch":"site:linkedin.com Defense Health Agency strategic communications director","email":"osd.ha.tricare-mb.mbx.dha-communications@mail.mil (public)","contractRef":"Multiple DHA comms contracts — active buyer cycle","approach":"DIRECT PITCH — DHA is buying now. Position as AI-native narrative vendor. Reference successful DHA contractor models (Ipsos, Chickasaw)."},{"id":"disc_011","source":"Public Record — Washington Headquarters Services","name":"Contracting Officer / Strategic Comms Director","org":"Washington Headquarters Services (WHS/OSD)","vertical":"Federal DoD","confidence":85,"intel":"WHS manages OSD/Pentagon comms contracting. The LMI $83.4M contract EXPIRED July 2025 — WHS is actively recompeting. WHS Acquisition Directorate at the Pentagon holds the vehicle.","linkedinSearch":"site:linkedin.com Washington Headquarters Services strategic communications contracting","email":"whs.pentagon.pnc.mbx.acquisition@mail.mil (public format)","contractRef":"OSD $83.4M LMI contract expired — active recompete","approach":"DIRECT PITCH — Offer as prime or sub on WHS strategic comms recompete. Lead with OSD narrative doctrine alignment and Roman's principal-level access."},{"id":"disc_012","source":"SOCOM Public Affairs — socom.mil (verified)","name":"Director, USSOCOM Public Affairs","org":"US Special Operations Command (SOCOM) — MacDill AFB","vertical":"Federal DoD","confidence":91,"intel":"SOCOM PAO at MacDill AFB, Tampa FL — LOCAL TO ROMAN/SOUTH FLORIDA. Public contact: SOCOM.SOCO.Outreach.DL@socom.mil (verified). SOCOM PAO oversees SOF narrative, internal comms, and community relations. FY2026 budget cycle active. PSYOPs and IO are core SOCOM missions.","linkedinSearch":"site:linkedin.com SOCOM Public Affairs director strategic communications MacDill","email":"SOCOM.SOCO.Outreach.DL@socom.mil (VERIFIED PUBLIC)","contractRef":"SOCOM PAO — MacDill AFB Tampa FL — FY2026 active","approach":"DIRECT PITCH — Geographic proximity advantage (Tampa/South Florida). Lead with SOF operational speed framing, 200+ variant narrative production, sub-1% semantic drift. This is Roman's home turf."}];
+const AGENT_INTEL_LEADS = window.CLAW.AGENT_INTEL_LEADS;
 
 function loadAgentIntel() {
   let added = 0;
@@ -2714,17 +3003,7 @@ function loadAgentIntel() {
 }
 
 // Apollo-verified contacts (enriched via Apollo.io API — verified emails)
-const APOLLO_VERIFIED_LEADS = [
-  {id:"apollo_001",source:"Apollo.io — Verified",name:"Matthew Fay",org:"HII Mission Technologies",vertical:"Defense Contractor",confidence:95,intel:"VP Capture Management — HII $48.7M USAF Info Ops contract EXPIRED Sept 2025. This is the teaming decision-maker for the recompete. Falls Church VA.\n\nApproach: TEAMING — USAF IO narrative recompete. Lead with AI-speed and variant depth.\nEmail (verified): mfay@alionscience.com\nLinkedIn: linkedin.com/in/matthew-fay-b31ab37",addedAt:new Date().toISOString()},
-  {id:"apollo_002",source:"Apollo.io — Verified",name:"Robert Sebastianelli",org:"HII Mission Technologies",vertical:"Defense Contractor",confidence:95,intel:"Capture Director — HII $48.7M USAF contract expired Sept 2025. Capture Director owns the recompete BD. Chantilly VA.\n\nApproach: TEAMING — Direct capture lead. Pitch Trestleboard as AI narrative subcontractor for recompete.\nEmail (verified): robert.sebastianelli@hii.com\nLinkedIn: linkedin.com/in/robert-sebastianelli-4812261a",addedAt:new Date().toISOString()},
-  {id:"apollo_003",source:"Apollo.io — Verified",name:"Jaime Orlando",org:"HII Mission Technologies",vertical:"Defense Contractor",confidence:90,intel:"SVP Communications — oversees all narrative and public affairs across HII contracts. Washington DC.\n\nApproach: PARTNERSHIP — Senior relationship. Position Trestleboard as AI content engine for HII's comms portfolio.\nEmail (verified): jaime.orlando@hii-tsd.com\nLinkedIn: linkedin.com/in/jaimeokeefe",addedAt:new Date().toISOString()},
-  {id:"apollo_004",source:"Apollo.io — Verified",name:"Trish Csank",org:"LMI (Tysons, VA)",vertical:"Defense Contractor",confidence:97,intel:"VP Military Logistics Business Development — LMI holds $83.4M WHS/OSD StrComms contract EXPIRED July 2025. VP BD owns the recompete strategy. THIS IS THE HOTTEST LEAD. Baltimore MD.\n\nApproach: TEAMING — $83M OSD recompete is OPEN NOW. Position Trestleboard as narrative/AI subcontractor on their next WHS bid.\nEmail (verified): patricia.csank@lmi.org\nLinkedIn: linkedin.com/in/trisha-csank",addedAt:new Date().toISOString()},
-  {id:"apollo_005",source:"Apollo.io — Verified",name:"Caitlyn Ottinger",org:"LMI (Tysons, VA)",vertical:"Defense Contractor",confidence:92,intel:"VP Marketing & Communications — internal comms buyer AND external contract strategist. Bristol VT.\n\nApproach: DIRECT — Pitch as AI narrative production partner for LMI's own communications + their OSD contract work.\nEmail (verified): caitlyn.ottinger@lmi.org\nLinkedIn: linkedin.com/in/caitlyn-o-57b7a8170",addedAt:new Date().toISOString()},
-  {id:"apollo_006",source:"Apollo.io — Verified",name:"Marc Melkonian",org:"Booz Allen Hamilton",vertical:"Defense Contractor",confidence:91,intel:"Strategic Capture Director — Booz Allen holds $41.7M USAF + $9.8M DISA comms contracts. Capture Director for DoD accounts. Baltimore MD.\n\nApproach: TEAMING — Position as AI narrative layer under BAH's DoD comms programs.\nEmail (verified): melkonian_marc@bah.com\nLinkedIn: linkedin.com/in/marcmelkonian",addedAt:new Date().toISOString()},
-  {id:"apollo_007",source:"Apollo.io — Verified (Government Buyer)",name:"Whitney Trimble",org:"Defense Health Agency (DHA)",vertical:"Federal DoD",confidence:98,intel:"DIRECT GOVERNMENT BUYER — Director of Public Affairs and Community Outreach at DHA. DHA is spending $35M+ on comms contracts RIGHT NOW. This is the end-client decision-maker. Falls Church VA.\n\nApproach: DIRECT PITCH — DHA is actively buying. Lead with constituent comms acceleration, 200+ variant narrative production. Government email — use formal tone.\nEmail (verified): whitney.trimble@health.mil\nLinkedIn: linkedin.com/in/whitney-trimble-ma-scmp",addedAt:new Date().toISOString()},
-  {id:"apollo_008",source:"Apollo.io — Verified",name:"Scott Gardner",org:"Ipsos Public Affairs",vertical:"Federal Civilian",confidence:88,intel:"VP — Ipsos holds $35.2M DHA Public Affairs contract through Nov 2026. VP is a relationship to lock in for teaming on renewal.\n\nApproach: PARTNERSHIP — Ipsos does research, Trestleboard does narrative execution. Pitch as their content production arm for DHA renewal.\nEmail (verified): scott.gardner@ipsos.com\nLinkedIn: linkedin.com/in/sgardner7",addedAt:new Date().toISOString()},
-  {id:"apollo_009",source:"Apollo.io — Verified",name:"Sanyam Sethi",org:"Ipsos Public Affairs",vertical:"Federal Civilian",confidence:87,intel:"VP Public Affairs — $35.2M DHA contract. Key relationship for teaming on 2026 renewal. Toronto ON.\n\nApproach: PARTNERSHIP — Public Affairs VP is the strongest narrative fit. Ipsos research + Trestleboard narrative = complete offering.\nEmail (verified): sanyam.sethi@ipsos.com\nLinkedIn: linkedin.com/in/sanyamsethi",addedAt:new Date().toISOString()}
-];
+const APOLLO_VERIFIED_LEADS = window.CLAW.APOLLO_VERIFIED_LEADS;
 
 function loadApolloLeads() {
   if(!state.discoveryQueue) state.discoveryQueue = [];
@@ -2758,20 +3037,7 @@ function loadApolloLeads() {
 })();
 
 // South Florida + Local verified contacts
-const SOUTH_FLORIDA_LEADS = [
-  {id:"sf_001",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Kendra Parks",org:"Miami-Dade County",vertical:"Local Government",confidence:91,intel:"Director of Communications — Miami-Dade County. Direct comms buyer for the county's largest municipality. South Florida local.\n\nApproach: DIRECT PITCH — County-level narrative production, constituent communications, press release automation. Lead with speed and volume capability.\nEmail (verified): kendra.parks@miamidade.gov\nLinkedIn: linkedin.com/in/kendraparks",addedAt:new Date().toISOString()},
-  {id:"sf_002",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Julio Rodriguez",org:"Miami-Dade County",vertical:"Local Government",confidence:90,intel:"Director of Communications — Miami-Dade County. Second comms director — likely owns different portfolio (Spanish-language, outreach, or departmental comms).\n\nApproach: DIRECT PITCH — Bilingual/multicultural narrative production angle. Miami-Dade is majority Spanish-speaking.\nEmail (verified): julio.rodriguez6@miamidade.gov\nLinkedIn: linkedin.com/in/julio-rodriguez-7aa39165",addedAt:new Date().toISOString()},
-  {id:"sf_003",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Kirsten Castillo",org:"Miami-Dade County",vertical:"Local Government",confidence:88,intel:"Business Development & Public Affairs Manager — Miami-Dade County. Dual BD + public affairs role — rare combo, very relevant to Trestleboard.\n\nApproach: DIRECT PITCH — BD + comms overlap. Perfect entry point for a county-wide narrative contract.\nEmail (verified): kirsten.castillo@miamidade.gov\nLinkedIn: linkedin.com/in/kirsten-castillo-1426a811a",addedAt:new Date().toISOString()},
-  {id:"sf_004",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Adriana Lamar",org:"Miami-Dade County",vertical:"Local Government",confidence:85,intel:"Public Affairs Manager — Miami-Dade County. Local public affairs contact. South Florida based.\n\nApproach: DIRECT — Intro Trestleboard's AI narrative platform for county public affairs operations.\nEmail (verified): alamar@co.miami-dade.fl.us\nLinkedIn: linkedin.com/in/adriana-lamar-5751b729",addedAt:new Date().toISOString()},
-  {id:"sf_005",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Ivonne Perez-Suarez",org:"Miami-Dade County Commissioner Office",vertical:"Local Government",confidence:84,intel:"Director of Communications — Commissioner Rebeca Sosa's Office. Direct access to a Miami-Dade Commissioner. Political communications buyer.\n\nApproach: DIRECT — Political narrative/comms production. Spanish-language capability is a major differentiator at the commissioner level.\nEmail (verified): ivonnes@miamidade.gov\nLinkedIn: linkedin.com/in/ivonne-perez-suarez-8b3a253",addedAt:new Date().toISOString()},
-  {id:"sf_006",source:"Apollo.io — Verified (FL Legislature)",name:"Hannah Littlejohn",org:"Florida House of Representatives",vertical:"State Government",confidence:87,intel:"Deputy Communications Director, Office of the Speaker — Florida House of Representatives. This is the Speaker's comms shop. High-volume rapid narrative production is exactly what legislative comms needs.\n\nApproach: DIRECT PITCH — Legislative narrative acceleration, bill communications, constituent messaging at scale.\nEmail (verified): hannah.littlejohn@myfloridahouse.gov\nLinkedIn: linkedin.com/in/hannah-littlejohn-34893a185",addedAt:new Date().toISOString()},
-  {id:"sf_007",source:"Apollo.io — Verified (Miami Chamber)",name:"Alfred Sanchez",org:"Greater Miami Chamber of Commerce",vertical:"Local Business",confidence:93,intel:"President & CEO — Greater Miami Chamber of Commerce. Top business leader in South Florida. Gate to hundreds of Miami businesses. Strategic relationship for BD pipeline development.\n\nApproach: PARTNERSHIP — Position Trestleboard as the Chamber's AI communications partner. Offer member benefit program. This opens doors to the entire South FL business community.\nEmail (verified): asanchez@miamichamber.com\nLinkedIn: linkedin.com/in/alfredsanchez1",addedAt:new Date().toISOString()},
-  {id:"sf_008",source:"Apollo.io — Verified (Miami Chamber)",name:"Susan Snyder",org:"Greater Miami Chamber of Commerce",vertical:"Local Business",confidence:89,intel:"VP Communications — Greater Miami Chamber of Commerce. Fort Lauderdale/South Florida. Owns all Chamber communications — direct buyer for narrative and content production services.\n\nApproach: DIRECT PITCH — Chamber communications production, member spotlights, event narratives. High-volume content need.\nEmail (verified): ssnyder@miamichamber.com\nLinkedIn: linkedin.com/in/suesnyder",addedAt:new Date().toISOString()},
-  {id:"sf_009",source:"Apollo.io — Verified (Miami Chamber)",name:"Jennifer Hanley (via Chamber)",org:"Greater Miami Chamber — L3Harris",vertical:"Defense Contractor",confidence:83,intel:"VP International Business Development & Government Relations — L3Harris Technologies. L3Harris is a major South Florida-headquartered defense prime (Melbourne, FL). Government relations VP = teaming and contract strategy.\n\nApproach: TEAMING — L3Harris does comms systems; Trestleboard does narrative content. Complementary. South Florida proximity.\nEmail (verified): jennifer.hanley@l3harris.com\nLinkedIn: linkedin.com/in/jennifer-hanley-99166422",addedAt:new Date().toISOString()},
-  {id:"sf_010",source:"Apollo.io — Verified (L3Harris FL)",name:"Paul Cvar",org:"L3Harris Technologies",vertical:"Defense Contractor",confidence:88,intel:"Director Capture Management — L3Harris Technologies. L3Harris is Florida-HQ'd defense prime ($18B revenue). Capture Director owns teaming decisions for new bids.\n\nApproach: TEAMING — Pitch Trestleboard as AI narrative layer on L3Harris comms/IO contracts. Florida connection.\nEmail (verified): paul.cvar@l3harris.com\nLinkedIn: linkedin.com/in/pacvar78",addedAt:new Date().toISOString()},
-  {id:"sf_011",source:"Apollo.io — Verified (L3Harris FL)",name:"Kristine Burnell",org:"L3Harris Technologies",vertical:"Defense Contractor",confidence:86,intel:"Director Strategy & Capture — L3Harris. Second capture director. L3Harris wins communications and information operations contracts across DoD.\n\nApproach: TEAMING — AI narrative production as L3Harris subcontractor on IO/comms programs.\nEmail (verified): kristine.burnell@l3harris.com\nLinkedIn: linkedin.com/in/kristine-burnell-0a55142a",addedAt:new Date().toISOString()},
-  {id:"sf_012",source:"Apollo.io — Verified (L3Harris FL)",name:"Genevieve Hamer",org:"L3Harris Technologies",vertical:"Defense Contractor",confidence:85,intel:"Director Strategy & Capture — L3Harris. Third capture director across the L3Harris portfolio. High value for teaming.\n\nApproach: TEAMING — Same L3Harris play. Three capture directors = three shots at a teaming conversation.\nEmail (verified): genevieve.hamer@l3harris.com\nLinkedIn: linkedin.com/in/genevieve-hamer-215892110",addedAt:new Date().toISOString()}
-];
+const SOUTH_FLORIDA_LEADS = window.CLAW.SOUTH_FLORIDA_LEADS;
 
 function loadSouthFloridaLeads() {
   if(!state.discoveryQueue) state.discoveryQueue = [];
