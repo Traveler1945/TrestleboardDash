@@ -736,6 +736,28 @@ function _reloadAllLeads() {
   toast('Reloaded — ' + (state.discoveryQueue || []).length + ' contacts in queue');
 }
 
+// Clean mojibake from log strings (UTF-16 arrow artifacts stored in old localStorage)
+function _cleanStr(s) {
+  if (!s) return '';
+  // Remove common UTF-16 LE misread artifacts
+  return s.replace(/[\uBF6F\uBF75\uBF71]/g, '').replace(/\s{2,}/g, ' ').trim();
+}
+
+// Override renderAuditLog to use our log container and clean strings
+var _origRAL = typeof renderAuditLog === 'function' ? renderAuditLog : function(){};
+renderAuditLog = function() {
+  _origRAL();
+  // Also render into our compact log
+  var el = document.getElementById('audit-log-list');
+  if (!el) return;
+  var log = (state.auditLog || []).slice().reverse().slice(0, 30);
+  if (!log.length) { el.innerHTML = '<div style="padding:8px;font-size:8px;color:var(--muted)">No activity yet.</div>'; return; }
+  el.innerHTML = log.map(function(e) {
+    var ts = e.timestamp ? new Date(e.timestamp).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '--';
+    return '<div class="log-entry"><span class="log-time">' + ts + '</span><span class="log-actor">' + _cleanStr(e.actor || '') + '</span><span class="log-action">' + _cleanStr(e.action || '') + '</span></div>';
+  }).join('');
+};
+
 // Patch renderAll to update our new elements
 var _origRA = typeof renderAll === 'function' ? renderAll : function(){};
 renderAll = function() {
@@ -743,6 +765,7 @@ renderAll = function() {
   _updateStats();
   _renderIntelQueue();
   renderKanban();
+  renderAuditLog();
 };
 
 function _updateStats() {
@@ -760,9 +783,16 @@ showPage = function(id, btn) { if (id === 'intel') { _renderIntelQueue(); } };
 
 // On load
 window.addEventListener('load', function() {
+  // Auto-load if queue is empty (handles first visit and cleared cache)
+  if (!state.discoveryQueue || state.discoveryQueue.length === 0) {
+    if (typeof loadAgentIntel === 'function') loadAgentIntel();
+    if (typeof loadApolloLeads === 'function') loadApolloLeads();
+    if (typeof loadSouthFloridaLeads === 'function') loadSouthFloridaLeads();
+  }
   _updateStats();
   _renderIntelQueue();
   renderKanban();
+  renderAuditLog();
 });
 <\/script>
 </body>
