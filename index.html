@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clawbot // Trestleboard Revenue Ops</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 :root {
   --bg: #060608;
@@ -306,6 +307,35 @@ select { cursor: pointer; }
   .sim-grid { grid-template-columns: 1fr; }
   .top-controls { align-items: flex-start; }
 }
+
+/* ANALYTICS */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+.chart-card h4 { font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.chart-card canvas { max-width: 100%; }
+.chart-full { grid-column: 1 / -1; }
+@media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+
+/* DISCOVERY */
+.disc-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.disc-mode-btn { border: 1px solid var(--border); background: var(--surface2); color: var(--muted); padding: 6px 14px; font-size: 10px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: all 0.2s; }
+.disc-mode-btn.active-OFF { border-color: var(--muted); color: var(--muted); }
+.disc-mode-btn.active-SEARCHING { border-color: var(--success); color: var(--success); box-shadow: inset 0 0 0 1px var(--success); }
+.disc-mode-btn.active-PAUSED { border-color: var(--warn); color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn); }
+.disc-log { background: var(--surface2); border: 1px solid var(--border); padding: 0; margin-top: 16px; max-height: 220px; overflow-y: auto; }
+.disc-log-entry { font-size: 10px; color: var(--muted); border-bottom: 1px solid var(--border); padding: 7px 12px; }
+.disc-log-entry .disc-log-time { color: var(--muted); margin-right: 10px; }
+.disc-log-entry .disc-log-msg { color: var(--text); }
+
+/* CONTACT LOCK */
+.contact-lock-banner { padding: 12px 16px; margin: 10px 0; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.contact-lock-banner.locked { background: #1a0000; border: 1px solid var(--danger); color: var(--danger); }
+.contact-lock-banner.approved { background: #0a1800; border: 1px solid var(--success); color: var(--success); }
+.lock-badge { font-size: 11px; cursor: default; }
+.agent-badge { background: #1a0a2a; border: 1px solid var(--hold); color: var(--hold); padding: 2px 6px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.stat-card.hold { border-top-color: var(--hold); }
+.stat-card.hold .stat-value { color: var(--hold); }
 </style>
 </head>
 <body>
@@ -366,6 +396,8 @@ select { cursor: pointer; }
   <button onclick="showSection('simulation',this)">Simulation</button>
   <button onclick="showSection('constraints',this)">Constraints</button>
   <button onclick="showSection('auditlog',this)">Audit Log</button>
+  <button onclick="showSection('analytics',this)">Analytics</button>
+  <button onclick="showSection('discovery',this)" id="nav-discovery-btn">Discovery <span id="nav-discovery-indicator" style="color:var(--muted)">●</span></button>
 </div>
 
 <div class="constraints-banner" id="constraints-banner">HARD CONSTRAINTS ENABLED — Autonomy gated by federal compliance</div>
@@ -389,6 +421,7 @@ select { cursor: pointer; }
     <div class="stat-card danger"><div class="stat-value" id="cmd-stale">0</div><div class="stat-label">Stale 72h+</div></div>
     <div class="stat-card"><div class="stat-value" id="cmd-briefings">0</div><div class="stat-label">Briefings</div></div>
     <div class="stat-card success"><div class="stat-value" id="cmd-closed">0</div><div class="stat-label">Closed</div></div>
+    <div class="stat-card hold"><div class="stat-value" id="cmd-contact-approved">0</div><div class="stat-label">Approved</div><div class="stat-sub" id="cmd-contact-locked">0 locked</div></div>
   </div>
   <div id="hold-info"></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
@@ -576,6 +609,63 @@ select { cursor: pointer; }
   <div id="audit-log-list"></div>
 </div>
 
+<!-- ══ ANALYTICS ══ -->
+<div class="section" id="section-analytics">
+  <div class="section-header">
+    <div class="section-title">Pipeline Analytics</div>
+    <div class="section-actions"><button class="btn" onclick="renderAnalytics()">⟳ Refresh Charts</button></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Pipeline Funnel — Lead Count &amp; EV by Stage</h4>
+      <canvas id="chart-funnel" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>Score Distribution</h4>
+      <canvas id="chart-score-dist" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>Decay Risk Breakdown</h4>
+      <canvas id="chart-decay-pie" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>EV Composition by Stage (Conservative / Base / Upside)</h4>
+      <canvas id="chart-ev-composition" height="180"></canvas>
+    </div>
+    <div class="chart-card chart-full">
+      <h4>Priority Matrix — Days to Close vs. EV (bubble = score)</h4>
+      <canvas id="chart-priority-matrix" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DISCOVERY ══ -->
+<div class="section" id="section-discovery">
+  <div class="section-header">
+    <div class="section-title">Agent Discovery Engine</div>
+    <div class="section-actions">
+      <button class="btn primary" onclick="runDiscoveryScan()">⟳ Run Discovery Scan</button>
+    </div>
+  </div>
+  <div class="disc-controls">
+    <span style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-right:4px">Discovery Mode:</span>
+    <button class="disc-mode-btn" id="disc-btn-OFF" onclick="setDiscoveryMode('OFF')">● Off</button>
+    <button class="disc-mode-btn" id="disc-btn-SEARCHING" onclick="setDiscoveryMode('SEARCHING')">◉ Searching</button>
+    <button class="disc-mode-btn" id="disc-btn-PAUSED" onclick="setDiscoveryMode('PAUSED')">◎ Paused</button>
+    <span style="font-size:9px;color:var(--muted);margin-left:12px">Webhook:</span>
+    <input type="text" id="disc-webhook-input" style="width:240px;font-size:10px;padding:5px 8px" placeholder="https://hooks.example.com/..." oninput="state.discoveryWebhook=this.value;saveState()">
+  </div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Discovery Queue</div>
+  <table id="discovery-queue-table">
+    <thead><tr>
+      <th>Source</th><th>Name</th><th>Org</th><th>Vertical</th><th>Confidence</th><th>Intel Summary</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="discovery-queue-tbody"></tbody>
+  </table>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:20px;margin-bottom:6px">Discovery Log</div>
+  <div class="disc-log" id="disc-log-list"></div>
+</div>
+
 </div><!-- /main -->
 
 <!-- ══════════ MODALS ══════════ -->
@@ -625,6 +715,12 @@ select { cursor: pointer; }
             <input type="checkbox" id="lead-hold"> MANUAL HOLD — Do not engage autonomously
           </label>
         </div>
+      </div>
+      <div class="form-group">
+        <label>Contact Status</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--success);text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="lead-contact-approved"> Contact Approved — Roman has authorized outreach for this lead
+        </label>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label>Urgency (1-3)</label><input type="number" id="lead-urgency" min="1" max="3" value="2"></div>
@@ -798,6 +894,24 @@ select { cursor: pointer; }
   </div>
 </div>
 
+<!-- CONTACT APPROVAL CONFIRMATION -->
+<div class="modal-overlay" id="modal-contact-approve">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><div class="modal-title">Approve Outreach</div><button class="modal-close" onclick="closeModal('modal-contact-approve')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:#0a1800;border:1px solid var(--success);padding:14px 16px;margin-bottom:16px;font-size:11px;color:var(--success)">
+        ⚠ AUTHORIZATION REQUIRED — Principal Approval
+      </div>
+      <p id="contact-approve-text" style="font-size:12px;line-height:1.7;color:var(--text);margin-bottom:16px"></p>
+      <p style="font-size:10px;color:var(--muted)">This authorizes CLAWBOT to execute campaign sequences for this lead. All outreach will be subject to hard constraints and autonomy mode.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-contact-approve')">Cancel</button>
+      <button class="btn success" onclick="confirmContactApproval()">✓ Confirm Approval</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="data.js"></script>
@@ -844,6 +958,10 @@ function normalizeState(){
   state.agentOutputs = state.agentOutputs||{};
   state.conflicts = state.conflicts||[];
   if(!state.autonomyMode) state.autonomyMode='SEMI-AUTO';
+  state.discoveryMode = state.discoveryMode||'OFF';
+  state.discoveryQueue = state.discoveryQueue||[];
+  state.discoveryLog = state.discoveryLog||[];
+  state.discoveryWebhook = state.discoveryWebhook||'';
 }
 function applyLeadDefaults(lead){
   return {
@@ -858,7 +976,9 @@ function applyLeadDefaults(lead){
     manualHold: !!lead.manualHold,
     urgency: parseInt(lead.urgency ?? 2, 10) || 2,
     daysToClose: parseInt(lead.daysToClose ?? 30, 10) || 30,
-    status: lead.status || 'Qualified'
+    status: lead.status || 'Qualified',
+    contactApproved: !!lead.contactApproved,
+    discoveredBy: lead.discoveredBy || null
   };
 }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -1077,6 +1197,7 @@ function showSection(id, btn) {
   document.getElementById('section-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
   renderAll();
+  if(id==='analytics') renderAnalytics();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1098,6 +1219,7 @@ function renderAll() {
   renderConstraintsList();
   renderConstraintReminder();
   updateModeSelectorUI();
+  renderDiscovery();
   updateConflictBadge();
   initSimulationForm();
   maybeAutoBrief();
@@ -1165,6 +1287,14 @@ function renderCommand() {
   document.getElementById('cmd-stale').textContent = stale.length;
   document.getElementById('cmd-briefings').textContent = state.leads.filter(l=>l.status==='Briefing').length;
   document.getElementById('cmd-closed').textContent = state.leads.filter(l=>l.status==='Closed').length;
+
+  // Contact Approvals stat
+  const approvedLeads = active.filter(l=>l.contactApproved).length;
+  const lockedLeads = active.length - approvedLeads;
+  const caEl = document.getElementById('cmd-contact-approved');
+  if(caEl) caEl.textContent = approvedLeads;
+  const clEl = document.getElementById('cmd-contact-locked');
+  if(clEl) clEl.textContent = lockedLeads+' locked';
 
   const holdEl=document.getElementById('hold-info');
   if(holdEl){
@@ -1243,9 +1373,11 @@ function renderKanban() {
           const score = calcScore(l);
           const dc = decayClass(l);
           const nba = getNBAStack(l);
+          const lockBadge = l.contactApproved ? '' : ' <span class="lock-badge" title="Outreach locked">🔒</span>';
+          const agentBadge = l.discoveredBy==='AGENT' ? ' <span class="agent-badge">AGENT</span>' : '';
           return `<div class="kanban-card ${dc}" draggable="true" id="kc-${l.id}"
             ondragstart="dragStart('${l.id}')" ondragend="dragEnd()">
-            <div class="card-name">${l.name} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</div>
+            <div class="card-name">${l.name}${lockBadge}${agentBadge} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</div>
             <div class="card-org">${l.org}</div>
             <div class="card-score-bar"><div class="card-score-fill" style="width:${score}%;background:${scoreColor(score)}"></div></div>
             <div class="card-score-label">${priorityBadge(l)} · ${decayLabel(l)}</div>
@@ -1289,9 +1421,12 @@ function renderLeadTable() {
   });
   tb.innerHTML = sorted.map(l=>{
     const nba=getNBAStack(l);
+    const lockBadge = l.contactApproved ? '' : ' <span class="lock-badge" title="Outreach locked — approval required">🔒</span>';
+    const agentBadge = l.discoveredBy==='AGENT' ? ' <span class="agent-badge">AGENT</span>' : '';
+    const outreachDisabled = !l.contactApproved ? 'disabled title="Contact not approved — click Dossier to approve"' : '';
     return `<tr>
       <td>${scoreBadge(calcScore(l))}</td>
-      <td>${l.name} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</td>
+      <td>${l.name}${lockBadge}${agentBadge} ${l.manualHold?'<span class="hold-badge">HOLD</span>':''}</td>
       <td>${l.org}</td>
       <td><span class="tag amber">${l.vertical}</span></td>
       <td>
@@ -1308,7 +1443,7 @@ function renderLeadTable() {
         <button class="btn sm" onclick="openEditLead('${l.id}')">Edit</button>
         <button class="btn sm primary" onclick="openDossier('${l.id}')">Dossier</button>
         <button class="btn sm success" onclick="touchLead('${l.id}')">Touch</button>
-        <button class="btn sm warn" onclick="triggerSequenceForLead('${l.id}')">Outreach</button>
+        <button class="btn sm warn" onclick="triggerSequenceForLead('${l.id}')" ${outreachDisabled}>🔒 Outreach</button>
         <button class="btn sm danger" onclick="deleteLead('${l.id}')">Del</button>
       </div></td>
     </tr>`;
@@ -1456,6 +1591,7 @@ function addTouchpoint(id){
 function triggerSequenceForLead(id){
   const l=state.leads.find(x=>x.id===id);if(!l)return;
   if(l.manualHold){toast('Manual hold active — outreach blocked');return;}
+  if(!l.contactApproved){toast('🔒 Contact not approved — open Dossier to approve outreach');return;}
   state.campaigns.push({id:uid(),name:`Outreach → ${l.name}`,vertical:l.vertical,type:'Email Drip (D1→D4→D10)',brief:l.notes||'Trestleboard capability intro',created:new Date().toISOString(),status:'Active',steps:[{day:'D1',label:'First Touch',done:true},{day:'D4',label:'Follow-Up',done:false},{day:'D10',label:'Final Push',done:false}]});
   l.lastTouch=new Date().toISOString();
   log(`CAMPAIGN TRIGGERED: ${l.name}`,'Email Drip initiated');
@@ -1788,6 +1924,7 @@ function openAddLead(){
   document.getElementById('lead-status').value='Qualified';
   document.getElementById('lead-psych').value='Unknown';
   document.getElementById('lead-hold').checked=false;
+  document.getElementById('lead-contact-approved').checked=false;
   document.getElementById('lead-urgency').value='2';
   document.getElementById('lead-days').value='30';
   openModal('modal-lead');
@@ -1808,6 +1945,7 @@ function openEditLead(id){
   document.getElementById('score-fit').value=l.scoreFit||5;
   document.getElementById('lead-psych').value=l.psychProfile||'Unknown';
   document.getElementById('lead-hold').checked=!!l.manualHold;
+  document.getElementById('lead-contact-approved').checked=!!l.contactApproved;
   document.getElementById('lead-urgency').value=l.urgency||2;
   document.getElementById('lead-days').value=l.daysToClose||30;
   document.getElementById('nba-primary').value=l.nbaPrimary||'';
@@ -1830,6 +1968,7 @@ function saveLead(){
     scoreFit:parseFloat(document.getElementById('score-fit').value)||5,
     psychProfile:document.getElementById('lead-psych').value,
     manualHold:document.getElementById('lead-hold').checked,
+    contactApproved:document.getElementById('lead-contact-approved').checked,
     urgency:parseInt(document.getElementById('lead-urgency').value,10)||2,
     daysToClose:parseInt(document.getElementById('lead-days').value,10)||30,
     nbaPrimary:document.getElementById('nba-primary').value.trim(),
@@ -1841,7 +1980,17 @@ function saveLead(){
   if(data.urgency<1||data.urgency>3) data.urgency=2;
   if(data.daysToClose<1) data.daysToClose=30;
   if(id){Object.assign(state.leads.find(l=>l.id===id),data);log(`UPDATED: ${data.name}`);}
-  else{state.leads.push({id:uid(),...data});log(`LEAD ADDED: ${data.name}`,data.org);}
+  else{
+    const newLead = {id:uid(),...data};
+    // Tag agent-discovered leads
+    if(window._importingDiscoveryId) {
+      newLead.discoveredBy = 'AGENT';
+      state.discoveryQueue = state.discoveryQueue.filter(x=>x.id!==window._importingDiscoveryId);
+      window._importingDiscoveryId = null;
+    }
+    state.leads.push(newLead);
+    log(`LEAD ADDED: ${data.name}`,data.org);
+  }
   saveState();closeModal('modal-lead');renderAll();
 }
 
@@ -1892,6 +2041,11 @@ function openDossier(leadId){
       <p>${getObjCounter(l)}</p>
       <h4>Next Action</h4>
       <p style="color:var(--accent)">${getNextAction(l)}</p>
+      <h4>Contact Lock</h4>
+      ${l.contactApproved
+        ? `<div class="contact-lock-banner approved">✓ CONTACT APPROVED — Outreach authorized by Roman <button class="btn sm danger" style="margin-left:auto" onclick="revokeContactApproval('${l.id}')">Revoke Approval</button></div>`
+        : `<div class="contact-lock-banner locked">🔒 OUTREACH LOCKED — Awaiting Roman's approval <button class="btn sm success" style="margin-left:auto" onclick="initiateContactApproval('${l.id}')">✓ Approve Contact</button></div>`
+      }
       <div style="margin-top:16px;font-size:9px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px">CLAWBOT v2.1 // TRESTLEBOARD GROUP LLC // INTERNAL // ${new Date().toLocaleString()}</div>
     </div>`;
   openModal('modal-dossier');
@@ -1975,6 +2129,295 @@ function runIntelligenceScan(){
   msg+=`Content pending review: ${state.content.filter(c=>c.status==='Pending').length}`;
   alert(msg);
   log('INTELLIGENCE SCAN','Manual scan executed');
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTACT LOCK SYSTEM
+// ═══════════════════════════════════════════════════════
+let _pendingApprovalLeadId = null;
+function initiateContactApproval(leadId) {
+  const l = state.leads.find(x=>x.id===leadId);
+  if(!l) return;
+  _pendingApprovalLeadId = leadId;
+  document.getElementById('contact-approve-text').innerHTML =
+    `You are approving outreach for <strong>${l.name}</strong> at <strong>${l.org}</strong>.<br><br>This authorizes CLAWBOT to execute campaign sequences. Confirm?`;
+  closeModal('modal-dossier');
+  openModal('modal-contact-approve');
+}
+function confirmContactApproval() {
+  if(!_pendingApprovalLeadId) return;
+  const l = state.leads.find(x=>x.id===_pendingApprovalLeadId);
+  if(!l) { _pendingApprovalLeadId=null; return; }
+  l.contactApproved = true;
+  state.auditLog.unshift({ time:new Date().toISOString(), actor:'ROMAN', action:`CONTACT APPROVED: ${l.name}`, detail:`Outreach authorized for ${l.org}` });
+  if(state.auditLog.length>500) state.auditLog=state.auditLog.slice(0,500);
+  saveState();
+  closeModal('modal-contact-approve');
+  _pendingApprovalLeadId = null;
+  renderAll();
+  toast(`Contact approved: ${l.name}`);
+}
+function revokeContactApproval(leadId) {
+  const l = state.leads.find(x=>x.id===leadId);
+  if(!l) return;
+  if(!confirm(`Revoke outreach approval for ${l.name}?`)) return;
+  l.contactApproved = false;
+  state.auditLog.unshift({ time:new Date().toISOString(), actor:'ROMAN', action:`CONTACT REVOKED: ${l.name}`, detail:`Outreach authorization revoked for ${l.org}` });
+  if(state.auditLog.length>500) state.auditLog=state.auditLog.slice(0,500);
+  saveState();
+  closeModal('modal-dossier');
+  renderAll();
+  toast(`Approval revoked: ${l.name}`);
+}
+
+// ═══════════════════════════════════════════════════════
+// AGENT DISCOVERY ENGINE
+// ═══════════════════════════════════════════════════════
+function setDiscoveryMode(mode) {
+  state.discoveryMode = mode;
+  saveState();
+  renderDiscovery();
+  updateDiscoveryNavIndicator();
+  log('DISCOVERY MODE', mode);
+  toast(`Discovery: ${mode}`);
+}
+function updateDiscoveryNavIndicator() {
+  const ind = document.getElementById('nav-discovery-indicator');
+  if(!ind) return;
+  if(state.discoveryMode==='SEARCHING') { ind.style.color='var(--success)'; ind.textContent='●'; }
+  else if(state.discoveryMode==='PAUSED') { ind.style.color='var(--warn)'; ind.textContent='●'; }
+  else { ind.style.color='var(--muted)'; ind.textContent='●'; }
+}
+function renderDiscovery() {
+  updateDiscoveryNavIndicator();
+  // Sync webhook input
+  const wh = document.getElementById('disc-webhook-input');
+  if(wh && document.activeElement!==wh) wh.value = state.discoveryWebhook||'';
+  // Mode buttons
+  ['OFF','SEARCHING','PAUSED'].forEach(m=>{
+    const btn = document.getElementById('disc-btn-'+m);
+    if(btn) {
+      btn.className = 'disc-mode-btn' + (state.discoveryMode===m ? ' active-'+m : '');
+    }
+  });
+  // Queue table
+  const tbody = document.getElementById('discovery-queue-tbody');
+  if(tbody) {
+    if(!state.discoveryQueue.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:24px;font-size:11px">No leads in discovery queue. Run a scan or add leads manually.</td></tr>`;
+    } else {
+      tbody.innerHTML = state.discoveryQueue.map(item=>`
+        <tr>
+          <td style="font-size:10px;color:var(--muted)">${item.source||'—'}</td>
+          <td>${item.name||'—'}</td>
+          <td>${item.org||'—'}</td>
+          <td><span class="tag amber">${item.vertical||'Unknown'}</span></td>
+          <td><span style="color:${item.confidence>=70?'var(--success)':item.confidence>=50?'var(--warn)':'var(--muted)'};font-weight:bold">${item.confidence||'?'}%</span></td>
+          <td style="font-size:10px;color:#aaa;max-width:220px">${item.intel||'—'}</td>
+          <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+            <button class="btn sm success" onclick="importDiscoveryLead('${item.id}')">Import</button>
+            <button class="btn sm danger" onclick="dismissDiscoveryLead('${item.id}')">Dismiss</button>
+          </div></td>
+        </tr>`).join('');
+    }
+  }
+  // Discovery log
+  const logEl = document.getElementById('disc-log-list');
+  if(logEl) {
+    if(!state.discoveryLog.length) {
+      logEl.innerHTML = '<div class="disc-log-entry"><span class="disc-log-msg" style="color:var(--muted)">No discovery scans run yet.</span></div>';
+    } else {
+      logEl.innerHTML = state.discoveryLog.slice(0,50).map(e=>`
+        <div class="disc-log-entry">
+          <span class="disc-log-time">${new Date(e.time).toLocaleString()}</span>
+          <span class="disc-log-msg">${e.query} — ${e.results}</span>
+        </div>`).join('');
+    }
+  }
+}
+function runDiscoveryScan() {
+  const webhook = state.discoveryWebhook?.trim();
+  const timestamp = new Date().toISOString();
+  const query = `Trestleboard discovery scan — ${new Date().toLocaleString()}`;
+  const logEntry = { time: timestamp, query, results: webhook ? 'POST dispatched to webhook' : 'No webhook configured — scan simulated' };
+  if(webhook) {
+    fetch(webhook, { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ scan:'discovery', timestamp, pipeline_ev: calcEV().base, active_leads: state.leads.filter(l=>!['Closed','Archived'].includes(l.status)).length })
+    }).then(()=>{ logEntry.results='POST delivered successfully'; saveState(); renderDiscovery(); toast('Discovery scan dispatched'); })
+      .catch(err=>{ logEntry.results=`POST failed: ${err.message}`; saveState(); renderDiscovery(); toast('Webhook error — check log'); });
+  }
+  state.discoveryLog.unshift(logEntry);
+  if(state.discoveryLog.length>100) state.discoveryLog=state.discoveryLog.slice(0,100);
+  log('DISCOVERY SCAN', webhook?'Webhook fired':'Simulated');
+  saveState();
+  renderDiscovery();
+  if(!webhook) toast('Scan simulated — configure webhook in Discovery settings');
+}
+function importDiscoveryLead(itemId) {
+  const item = state.discoveryQueue.find(x=>x.id===itemId);
+  if(!item) return;
+  // Pre-fill the add lead modal with discovery data
+  document.getElementById('lead-modal-title').textContent = 'Import Discovered Lead';
+  document.getElementById('lead-id').value = '';
+  document.getElementById('lead-name').value = item.name||'';
+  document.getElementById('lead-org').value = item.org||'';
+  document.getElementById('lead-notes').value = item.intel||'';
+  document.getElementById('lead-email').value = '';
+  document.getElementById('lead-value').value = '';
+  ['score-engagement','score-speed','score-fit'].forEach(id=>document.getElementById(id).value='5');
+  document.getElementById('lead-status').value = 'Qualified';
+  document.getElementById('lead-psych').value = 'Unknown';
+  document.getElementById('lead-hold').checked = false;
+  document.getElementById('lead-contact-approved').checked = false;
+  document.getElementById('lead-urgency').value = '2';
+  document.getElementById('lead-days').value = '30';
+  ['nba-primary','nba-fallback','nba-escalation'].forEach(id=>document.getElementById(id).value='');
+  // Try to match vertical
+  const vertSel = document.getElementById('lead-vertical');
+  const options = Array.from(vertSel.options).map(o=>o.value);
+  const match = options.find(v=>v.toLowerCase().includes((item.vertical||'').toLowerCase()));
+  if(match) vertSel.value = match;
+  // Store the discovery item id to tag the lead after save
+  window._importingDiscoveryId = itemId;
+  openModal('modal-lead');
+  log('DISCOVERY IMPORT', `Importing ${item.name} from ${item.source}`);
+}
+function dismissDiscoveryLead(itemId) {
+  state.discoveryQueue = state.discoveryQueue.filter(x=>x.id!==itemId);
+  log('DISCOVERY DISMISS', itemId);
+  saveState();
+  renderDiscovery();
+  toast('Lead dismissed from discovery queue');
+}
+
+// ═══════════════════════════════════════════════════════
+// ANALYTICS / CHARTS
+// ═══════════════════════════════════════════════════════
+const chartInstances = {};
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function destroyChart(key) {
+  if(chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
+}
+function renderAnalytics() {
+  renderPipelineFunnelChart();
+  renderScoreDistChart();
+  renderDecayPieChart();
+  renderEVCompositionChart();
+  renderPriorityMatrixChart();
+}
+function renderPipelineFunnelChart() {
+  destroyChart('funnel');
+  const canvas = document.getElementById('chart-funnel');
+  if(!canvas) return;
+  const accent = getCSSVar('--accent');
+  const muted = getCSSVar('--muted');
+  const counts = STAGES.map(s=>state.leads.filter(l=>l.status===s).length);
+  const evs = STAGES.map(s=>state.leads.filter(l=>l.status===s).reduce((sum,l)=>sum+getLeadEV(l),0));
+  const ctx = canvas.getContext('2d');
+  chartInstances['funnel'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: STAGES,
+      datasets: [
+        { label:'Leads', data:counts, backgroundColor: accent+'99', borderColor: accent, borderWidth:1, yAxisID:'y' },
+        { label:'EV ($)', data:evs, backgroundColor: '#2a9a4a88', borderColor:'#2a9a4a', borderWidth:1, type:'bar', yAxisID:'y1' }
+      ]
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ color:muted, font:{family:'Courier New',size:10} } } },
+      scales:{
+        x:{ ticks:{color:muted}, grid:{color:getCSSVar('--border')+'44'} },
+        y:{ ticks:{color:accent, font:{size:10}}, grid:{color:getCSSVar('--border')+'44'} },
+        y1:{ position:'right', ticks:{color:'#2a9a4a', callback:v=>'$'+fmtNum(v)}, grid:{display:false} }
+      }
+    }
+  });
+}
+function renderScoreDistChart() {
+  destroyChart('scoredist');
+  const canvas = document.getElementById('chart-score-dist');
+  if(!canvas) return;
+  const buckets = {'0-30':0,'31-50':0,'51-70':0,'71-100':0};
+  state.leads.forEach(l=>{
+    const s=calcScore(l);
+    if(s<=30) buckets['0-30']++;
+    else if(s<=50) buckets['31-50']++;
+    else if(s<=70) buckets['51-70']++;
+    else buckets['71-100']++;
+  });
+  const accent=getCSSVar('--accent'); const muted=getCSSVar('--muted');
+  const ctx=canvas.getContext('2d');
+  chartInstances['scoredist'] = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:Object.keys(buckets),
+      datasets:[{label:'Leads by Score',data:Object.values(buckets),backgroundColor:[getCSSVar('--muted')+'99',getCSSVar('--success')+'88','#cc772288',getCSSVar('--danger')+'88'],borderColor:[muted,'#2a9a4a','#cc7722',getCSSVar('--danger')],borderWidth:1}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:muted,font:{family:'Courier New',size:10}}}},scales:{x:{ticks:{color:muted},grid:{color:getCSSVar('--border')+'44'}},y:{ticks:{color:muted,stepSize:1},grid:{color:getCSSVar('--border')+'44'}}}}
+  });
+}
+function renderDecayPieChart() {
+  destroyChart('decaypie');
+  const canvas = document.getElementById('chart-decay-pie');
+  if(!canvas) return;
+  const active=state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  const fresh=active.filter(l=>decayDays(l)<=1).length;
+  const warning=active.filter(l=>decayDays(l)>1&&decayDays(l)<=3).length;
+  const critical=active.filter(l=>decayDays(l)>3).length;
+  const muted=getCSSVar('--muted');
+  const ctx=canvas.getContext('2d');
+  chartInstances['decaypie'] = new Chart(ctx, {
+    type:'doughnut',
+    data:{labels:['Fresh','Warning','Critical'],datasets:[{data:[fresh,warning,critical],backgroundColor:['#2a9a4a99','#cc772299','#cc333399'],borderColor:['#2a9a4a','#cc7722','#cc3333'],borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{color:muted,font:{family:'Courier New',size:10}}}}}
+  });
+}
+function renderEVCompositionChart() {
+  destroyChart('evcomp');
+  const canvas = document.getElementById('chart-ev-composition');
+  if(!canvas) return;
+  const muted=getCSSVar('--muted'); const accent=getCSSVar('--accent');
+  const stageEVs=STAGES.map(s=>state.leads.filter(l=>l.status===s).reduce((sum,l)=>sum+(calcScore(l)/100)*(l.value||0)*(STAGE_MULT[s]||0.3),0));
+  const ctx=canvas.getContext('2d');
+  chartInstances['evcomp'] = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:STAGES,
+      datasets:[
+        {label:'Conservative',data:stageEVs.map(v=>v*0.7),backgroundColor:muted+'88',borderColor:muted,borderWidth:1,stack:'ev'},
+        {label:'Base',data:stageEVs.map(v=>v*0.3),backgroundColor:accent+'88',borderColor:accent,borderWidth:1,stack:'ev'},
+        {label:'Upside',data:stageEVs.map(v=>v*0.3),backgroundColor:'#2a9a4a88',borderColor:'#2a9a4a',borderWidth:1,stack:'ev'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:muted,font:{family:'Courier New',size:10}}}},scales:{x:{ticks:{color:muted},grid:{color:getCSSVar('--border')+'44'},stacked:true},y:{ticks:{color:muted,callback:v=>'$'+fmtNum(v)},grid:{color:getCSSVar('--border')+'44'},stacked:true}}}
+  });
+}
+function renderPriorityMatrixChart() {
+  destroyChart('pmatrix');
+  const canvas = document.getElementById('chart-priority-matrix');
+  if(!canvas) return;
+  const active=state.leads.filter(l=>!['Closed','Archived'].includes(l.status));
+  const accent=getCSSVar('--accent'); const muted=getCSSVar('--muted');
+  const data=active.map(l=>({x:l.daysToClose||30, y:Math.round(getLeadEV(l)), r:Math.max(4,Math.round(calcScore(l)/10)), label:l.name}));
+  const ctx=canvas.getContext('2d');
+  chartInstances['pmatrix'] = new Chart(ctx, {
+    type:'bubble',
+    data:{datasets:[{label:'Leads',data,backgroundColor:accent+'88',borderColor:accent,borderWidth:1}]},
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{
+        legend:{labels:{color:muted,font:{family:'Courier New',size:10}}},
+        tooltip:{callbacks:{label:d=>`${d.raw.label} — ${d.raw.x}d / $${fmtNum(d.raw.y)} EV / Score ${d.raw.r*10}`}}
+      },
+      scales:{
+        x:{title:{display:true,text:'Days to Close',color:muted,font:{family:'Courier New',size:10}},ticks:{color:muted},grid:{color:getCSSVar('--border')+'44'}},
+        y:{title:{display:true,text:'Expected Value ($)',color:muted,font:{family:'Courier New',size:10}},ticks:{color:muted,callback:v=>'$'+fmtNum(v)},grid:{color:getCSSVar('--border')+'44'}}
+      }
+    }
+  });
 }
 
 // ═══════════════════════════════════════════════════════
