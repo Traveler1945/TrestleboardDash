@@ -622,7 +622,7 @@ function mountIntelSections() {
   if(_intelMounted) return;
   _intelMounted = true;
   const map = {
-    'section-discovery-inner': "",
+    'section-discovery-inner': `<div style="margin-bottom:16px"><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Discovery Mode</div><div class="discovery-toggle"><button id="disc-btn-OFF" class="disc-mode-btn active-off" onclick="setDiscoveryMode('OFF')">Off</button><button id="disc-btn-SEARCHING" class="disc-mode-btn" onclick="setDiscoveryMode('SEARCHING')">Searching</button><button id="disc-btn-PAUSED" class="disc-mode-btn" onclick="setDiscoveryMode('PAUSED')">Paused</button><button class="btn sm primary" onclick="runDiscoveryScan()">Run Scan</button></div><div style="margin-top:10px;display:flex;gap:8px;align-items:center"><input id="disc-webhook-input" type="text" placeholder="Webhook URL (optional)" style="flex:1;font-size:10px;padding:5px 8px" onchange="state.discoveryWebhook=this.value;saveState()"><span style="font-size:9px;color:var(--muted)">POST target for scan events</span></div></div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Discovery Queue</div><div style="overflow-x:auto"><table><thead><tr><th>Source</th><th>Name</th><th>Organization</th><th>Vertical</th><th>Confidence</th><th>Intel</th><th>Actions</th></tr></thead><tbody id="discovery-queue-tbody"></tbody></table></div><div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:16px 0 8px">Discovery Log</div><div id="disc-log-list" class="disc-log"></div>`,
     'section-analytics-inner': "",
     'section-forecast-inner': "",
     'section-simulation-inner': "",
@@ -2318,7 +2318,39 @@ function loadApolloLeads() {
     loadApolloLeads();
     localStorage.setItem('claw_apollo_v1','1');
   }
+  if(!localStorage.getItem('claw_sf_v1')) {
+    loadSouthFloridaLeads();
+    localStorage.setItem('claw_sf_v1','1');
+  }
 })();
+
+// South Florida + Local verified contacts
+const SOUTH_FLORIDA_LEADS = [
+  {id:"sf_001",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Kendra Parks",org:"Miami-Dade County",vertical:"Local Government",confidence:91,intel:"Director of Communications — Miami-Dade County. Direct comms buyer for the county's largest municipality. South Florida local.\n\nApproach: DIRECT PITCH — County-level narrative production, constituent communications, press release automation. Lead with speed and volume capability.\nEmail (verified): kendra.parks@miamidade.gov\nLinkedIn: linkedin.com/in/kendraparks",addedAt:new Date().toISOString()},
+  {id:"sf_002",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Julio Rodriguez",org:"Miami-Dade County",vertical:"Local Government",confidence:90,intel:"Director of Communications — Miami-Dade County. Second comms director — likely owns different portfolio (Spanish-language, outreach, or departmental comms).\n\nApproach: DIRECT PITCH — Bilingual/multicultural narrative production angle. Miami-Dade is majority Spanish-speaking.\nEmail (verified): julio.rodriguez6@miamidade.gov\nLinkedIn: linkedin.com/in/julio-rodriguez-7aa39165",addedAt:new Date().toISOString()},
+  {id:"sf_003",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Kirsten Castillo",org:"Miami-Dade County",vertical:"Local Government",confidence:88,intel:"Business Development & Public Affairs Manager — Miami-Dade County. Dual BD + public affairs role — rare combo, very relevant to Trestleboard.\n\nApproach: DIRECT PITCH — BD + comms overlap. Perfect entry point for a county-wide narrative contract.\nEmail (verified): kirsten.castillo@miamidade.gov\nLinkedIn: linkedin.com/in/kirsten-castillo-1426a811a",addedAt:new Date().toISOString()},
+  {id:"sf_004",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Adriana Lamar",org:"Miami-Dade County",vertical:"Local Government",confidence:85,intel:"Public Affairs Manager — Miami-Dade County. Local public affairs contact. South Florida based.\n\nApproach: DIRECT — Intro Trestleboard's AI narrative platform for county public affairs operations.\nEmail (verified): alamar@co.miami-dade.fl.us\nLinkedIn: linkedin.com/in/adriana-lamar-5751b729",addedAt:new Date().toISOString()},
+  {id:"sf_005",source:"Apollo.io — Verified (Miami-Dade Gov)",name:"Ivonne Perez-Suarez",org:"Miami-Dade County Commissioner Office",vertical:"Local Government",confidence:84,intel:"Director of Communications — Commissioner Rebeca Sosa's Office. Direct access to a Miami-Dade Commissioner. Political communications buyer.\n\nApproach: DIRECT — Political narrative/comms production. Spanish-language capability is a major differentiator at the commissioner level.\nEmail (verified): ivonnes@miamidade.gov\nLinkedIn: linkedin.com/in/ivonne-perez-suarez-8b3a253",addedAt:new Date().toISOString()},
+  {id:"sf_006",source:"Apollo.io — Verified (FL Legislature)",name:"Hannah Littlejohn",org:"Florida House of Representatives",vertical:"State Government",confidence:87,intel:"Deputy Communications Director, Office of the Speaker — Florida House of Representatives. This is the Speaker's comms shop. High-volume rapid narrative production is exactly what legislative comms needs.\n\nApproach: DIRECT PITCH — Legislative narrative acceleration, bill communications, constituent messaging at scale.\nEmail (verified): hannah.littlejohn@myfloridahouse.gov\nLinkedIn: linkedin.com/in/hannah-littlejohn-34893a185",addedAt:new Date().toISOString()},
+  {id:"sf_007",source:"Apollo.io — Verified (Miami Chamber)",name:"Alfred Sanchez",org:"Greater Miami Chamber of Commerce",vertical:"Local Business",confidence:93,intel:"President & CEO — Greater Miami Chamber of Commerce. Top business leader in South Florida. Gate to hundreds of Miami businesses. Strategic relationship for BD pipeline development.\n\nApproach: PARTNERSHIP — Position Trestleboard as the Chamber's AI communications partner. Offer member benefit program. This opens doors to the entire South FL business community.\nEmail (verified): asanchez@miamichamber.com\nLinkedIn: linkedin.com/in/alfredsanchez1",addedAt:new Date().toISOString()},
+  {id:"sf_008",source:"Apollo.io — Verified (Miami Chamber)",name:"Susan Snyder",org:"Greater Miami Chamber of Commerce",vertical:"Local Business",confidence:89,intel:"VP Communications — Greater Miami Chamber of Commerce. Fort Lauderdale/South Florida. Owns all Chamber communications — direct buyer for narrative and content production services.\n\nApproach: DIRECT PITCH — Chamber communications production, member spotlights, event narratives. High-volume content need.\nEmail (verified): ssnyder@miamichamber.com\nLinkedIn: linkedin.com/in/suesnyder",addedAt:new Date().toISOString()},
+  {id:"sf_009",source:"Apollo.io — Verified (Miami Chamber)",name:"Jennifer Hanley (via Chamber)",org:"Greater Miami Chamber — L3Harris",vertical:"Defense Contractor",confidence:83,intel:"VP International Business Development & Government Relations — L3Harris Technologies. L3Harris is a major South Florida-headquartered defense prime (Melbourne, FL). Government relations VP = teaming and contract strategy.\n\nApproach: TEAMING — L3Harris does comms systems; Trestleboard does narrative content. Complementary. South Florida proximity.\nEmail (verified): jennifer.hanley@l3harris.com\nLinkedIn: linkedin.com/in/jennifer-hanley-99166422",addedAt:new Date().toISOString()},
+  {id:"sf_010",source:"Apollo.io — Verified (L3Harris FL)",name:"Paul Cvar",org:"L3Harris Technologies",vertical:"Defense Contractor",confidence:88,intel:"Director Capture Management — L3Harris Technologies. L3Harris is Florida-HQ'd defense prime ($18B revenue). Capture Director owns teaming decisions for new bids.\n\nApproach: TEAMING — Pitch Trestleboard as AI narrative layer on L3Harris comms/IO contracts. Florida connection.\nEmail (verified): paul.cvar@l3harris.com\nLinkedIn: linkedin.com/in/pacvar78",addedAt:new Date().toISOString()},
+  {id:"sf_011",source:"Apollo.io — Verified (L3Harris FL)",name:"Kristine Burnell",org:"L3Harris Technologies",vertical:"Defense Contractor",confidence:86,intel:"Director Strategy & Capture — L3Harris. Second capture director. L3Harris wins communications and information operations contracts across DoD.\n\nApproach: TEAMING — AI narrative production as L3Harris subcontractor on IO/comms programs.\nEmail (verified): kristine.burnell@l3harris.com\nLinkedIn: linkedin.com/in/kristine-burnell-0a55142a",addedAt:new Date().toISOString()},
+  {id:"sf_012",source:"Apollo.io — Verified (L3Harris FL)",name:"Genevieve Hamer",org:"L3Harris Technologies",vertical:"Defense Contractor",confidence:85,intel:"Director Strategy & Capture — L3Harris. Third capture director across the L3Harris portfolio. High value for teaming.\n\nApproach: TEAMING — Same L3Harris play. Three capture directors = three shots at a teaming conversation.\nEmail (verified): genevieve.hamer@l3harris.com\nLinkedIn: linkedin.com/in/genevieve-hamer-215892110",addedAt:new Date().toISOString()}
+];
+
+function loadSouthFloridaLeads() {
+  if(!state.discoveryQueue) state.discoveryQueue = [];
+  let added = 0;
+  SOUTH_FLORIDA_LEADS.forEach(lead => {
+    if(!state.discoveryQueue.find(x => x.id === lead.id)) {
+      state.discoveryQueue.push(lead);
+      added++;
+    }
+  });
+  if(added > 0) { log('SF INTEL LOADED', `${added} South Florida leads loaded`); saveState(); }
+}
 
 function updateConflictBadge() {
   const pending = (state.conflicts||[]).filter(c=>c.status==='pending').length;
