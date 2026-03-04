@@ -1781,121 +1781,95 @@ function updateConflictBadge() {
 
 
 
-// ══ POST-JS ADDITIONS (no re-declarations) ═════════════════
+// ══ POST-JS ADDITIONS ════════════════════════════════════
 
 // Build timestamp
 (function() {
   var el = document.getElementById('build-ts');
   if (el) {
-    try {
-      var d = new Date('2026-03-04T06:22:55.883Z');
-      el.textContent = d.toLocaleString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) + ' ET';
-    } catch(e) { el.textContent = 'recent'; }
+    try { var d = new Date('2026-03-04T06:35:51.808Z'); el.textContent = d.toLocaleString('en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' ET'; }
+    catch(e) { el.textContent = 'recent'; }
   }
 })();
 
-// Sync intel banner + badge
-function _syncIntelBanner() {
-  var q = (state && state.discoveryQueue) || [];
-  var banner = document.getElementById('intel-banner');
-  var badge  = document.getElementById('nav-intel-badge');
-  var count  = document.getElementById('cmd-intel-count');
-  var msg    = document.getElementById('intel-banner-msg');
-  if (q.length > 0) {
-    if (banner) banner.classList.add('show');
-    if (badge)  { badge.style.display = 'inline-flex'; badge.textContent = q.length; }
-    if (count)  count.textContent = q.length;
-    if (msg)    msg.textContent = q.length + ' CONTACTS WAITING FOR REVIEW';
-  } else {
-    if (banner) banner.classList.remove('show');
-    if (badge)  badge.style.display = 'none';
-    if (count)  count.textContent = '0';
-  }
+// Settings panel
+function _openSettings() { mountIntelSections(); renderForecast(); renderAnalytics(); document.getElementById('settings-panel').style.display = 'block'; }
+function _closeSettings() { document.getElementById('settings-panel').style.display = 'none'; }
+
+// Toggle table view
+var _tableOpen = false;
+function _toggleTable() {
+  _tableOpen = !_tableOpen;
+  var t = document.getElementById('pview-table');
+  if (t) { t.style.display = _tableOpen ? 'block' : 'none'; }
+  if (_tableOpen) renderLeadTable();
 }
 
-// Mini charts for command page
-var _mFC = null, _mDC = null;
-function _renderCmdCharts() {
-  var sl = (window.CLAW && window.CLAW.CONFIG && window.CLAW.CONFIG.STAGES) || [];
-  var sc = sl.map(function(s) { return state.leads.filter(function(l) { return l.status === s; }).length; });
-  var fe = document.getElementById('mini-funnel-chart');
-  if (fe && window.Chart) {
-    if (_mFC) _mFC.destroy();
-    _mFC = new Chart(fe, { type:'bar', data:{labels:sl,datasets:[{data:sc,backgroundColor:'#e8b84b33',borderColor:'#e8b84b',borderWidth:1}]}, options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#505570',font:{size:8}},grid:{color:'#1e2232'}},y:{ticks:{color:'#505570',font:{size:8}},grid:{display:false}}}} });
-  }
-  var ac = state.leads.filter(function(l) { return l.status !== 'Archived'; });
-  var fr = ac.filter(function(l) { return decayDays(l) <= 1; }).length;
-  var wn = ac.filter(function(l) { return decayDays(l) > 1 && decayDays(l) <= 3; }).length;
-  var cr = ac.filter(function(l) { return decayDays(l) > 3; }).length;
-  var de = document.getElementById('mini-decay-chart');
-  if (de && window.Chart) {
-    if (_mDC) _mDC.destroy();
-    _mDC = new Chart(de, { type:'doughnut', data:{labels:['Good','Watch','Cold'],datasets:[{data:[fr||1,wn,cr],backgroundColor:['#2ec76e33','#e8b84b33','#e03e3e33'],borderColor:['#2ec76e','#e8b84b','#e03e3e'],borderWidth:1}]}, options:{cutout:'65%',plugins:{legend:{labels:{color:'#505570',font:{size:8},boxWidth:8}}}} });
-  }
-}
-
-// Discovery hero (contact cards) — does NOT redeclare renderDiscoveryHero
-function _renderDiscoveryHero() {
-  var el = document.getElementById('discovery-hero');
+// INTEL QUEUE RENDER (compact rows)
+function _renderIntelQueue() {
+  var el = document.getElementById('intel-queue-list');
   if (!el) return;
   var q = (state && state.discoveryQueue) || [];
+
+  // Update counts
+  var c2 = document.getElementById('cmd-intel-count2');
+  if (c2) c2.textContent = q.length;
+  var ci = document.getElementById('cmd-intel-count');
+  if (ci) ci.textContent = q.length;
+
   if (!q.length) {
-    el.innerHTML = '<div class="guide-box"><div class="guide-title">NO INTEL YET</div><div class="guide-text">Queue is empty. Click Reload to restore all contacts.</div><button class="btn primary" onclick="_reloadAllLeads()">RELOAD CONTACTS</button></div>';
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted2)"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">QUEUE EMPTY</div><div style="font-size:8px;margin-bottom:12px;color:var(--muted)">Click Reload to restore contacts</div><button class="btn xs primary" onclick="_reloadAllLeads()">RELOAD ALL</button></div>';
     return;
   }
-  var vmap = {};
-  q.forEach(function(item) { var v = item.vertical || 'Other'; if (!vmap[v]) vmap[v] = []; vmap[v].push(item); });
-  var html = '<div class="intel-count-bar"><div><div class="intel-count-num">' + q.length + '</div><div class="intel-count-label">VERIFIED CONTACTS — TAP CARD TO EXPAND</div></div><button class="btn sm" onclick="_reloadAllLeads()">RELOAD ALL</button></div>';
-  html += '<div style="font-size:8px;color:var(--dim);margin-bottom:11px">Green = high confidence (85%+) | Gold = medium (70-84%) | Gray = lower</div>';
-  Object.keys(vmap).forEach(function(v) {
-    var items = vmap[v];
-    html += '<div class="vgroup-label">' + v + ' (' + items.length + ')</div>';
-    items.forEach(function(item) {
-      var cc = item.confidence >= 85 ? 'conf-high' : item.confidence >= 70 ? 'conf-med' : 'conf-low';
-      var lines = (item.intel || '').split('\n');
-      var firstLine = lines[0] || '';
-      var emailLine = lines.find(function(l) { return l.toLowerCase().indexOf('email') > -1; }) || '';
-      var liLine    = lines.find(function(l) { return l.toLowerCase().indexOf('linkedin') > -1; }) || '';
-      var emailMatch = emailLine.match(/:\s*([^\s(]+@[^\s]+)/);
-      var emailVal   = emailMatch ? emailMatch[1].trim() : '';
-      var liMatch    = liLine.match(/(linkedin\.com\/in\/[^\s]+)/i);
-      var liVal      = liMatch ? liMatch[1] : '';
-      var cid = item.id;
-      html += '<div class="ccard" id="card-' + cid + '">';
-      html += '<div class="ccard-top" onclick="_toggleCard(this)" data-id="' + cid + '"><div class="ccard-conf ' + cc + '">' + item.confidence + '%</div>';
-      html += '<div class="ccard-info"><div class="ccard-name">' + (item.name || 'Unknown') + '</div>';
-      html += '<div class="ccard-role">' + firstLine.substring(0, 70) + '</div>';
-      html += '<div class="ccard-org">' + (item.org || '') + '</div>';
-      if (item.location) html += '<div class="ccard-loc">' + item.location + '</div>';
-      html += '</div><div class="ccard-quick-btns">';
-      if (emailVal) html += '<a href="mailto:' + emailVal + '" class="btn xs primary" onclick="event.stopPropagation()">EMAIL</a>';
-      if (liVal)    html += '<a href="https://' + liVal + '" target="_blank" class="btn xs" onclick="event.stopPropagation()">LINKEDIN</a>';
-      html += '</div></div>';
-      html += '<div class="ccard-body" id="body-' + cid + '">';
-      html += '<div class="intel-txt">' + (item.intel || '').replace(/</g, '&lt;') + '</div>';
-      html += '<div class="ccard-foot">';
-      html += '<button class="btn success sm" data-discid="' + cid + '" onclick="_addToP(this)">ADD TO PIPELINE</button>';
-      html += '<button class="btn-start-pipeline locked" data-discid="' + cid + '" onclick="_startP(this)">START PIPELINE</button>';
-      html += '<button class="btn danger sm" data-discid="' + cid + '" onclick="_dismissP(this)">DISMISS</button>';
-      html += '</div></div></div>';
-    });
+
+  var html = '';
+  q.forEach(function(item) {
+    var cc = item.confidence >= 85 ? 'ch' : item.confidence >= 70 ? 'cm' : 'cl';
+    var lines = (item.intel || '').split('\n');
+    var emailLine = lines.find(function(l) { return l.toLowerCase().indexOf('email') > -1; }) || '';
+    var emailMatch = emailLine.match(/:\s*([^\s(]+@[^\s]+)/);
+    var emailVal = emailMatch ? emailMatch[1].trim() : '';
+
+    html += '<div class="crow" id="crow-' + item.id + '" onclick="_toggleCrow(this, ' + JSON.stringify(item.id) + ')">';
+    html += '<div class="cconf ' + cc + '">' + item.confidence + '%</div>';
+    html += '<div class="cinfo"><div class="cname">' + (item.name || 'Unknown') + '</div>';
+    html += '<div class="crole">' + (lines[0] || '').substring(0, 45) + '</div>';
+    html += '<div class="corg">' + (item.org || '') + '</div>';
+    if (item.location) html += '<div class="cloc">' + item.location + '</div>';
+    html += '</div>';
+    html += '<div class="crow-btns">';
+    html += '<button class="btn xs primary" data-discid="' + item.id + '" onclick="event.stopPropagation();_addToP(this)">+ PIPELINE</button>';
+    if (emailVal) html += '<a href="mailto:' + emailVal + '" class="btn xs" onclick="event.stopPropagation()">EMAIL</a>';
+    html += '</div></div>';
+    html += '<div class="crow-detail" id="cdet-' + item.id + '">';
+    html += '<div class="crow-intel">' + (item.intel || '').replace(/</g, '&lt;') + '</div>';
+    html += '<div class="crow-foot">';
+    html += '<button class="btn success sm" data-discid="' + item.id + '" onclick="_addToP(this)">ADD TO PIPELINE</button>';
+    html += '<button class="btn-start-pipeline locked" data-discid="' + item.id + '" onclick="_startP(this)">START PIPELINE</button>';
+    html += '<button class="btn danger sm" data-discid="' + item.id + '" onclick="_dismissP(this)">DISMISS</button>';
+    html += '</div></div>';
   });
+
   el.innerHTML = html;
 }
 
-function _toggleCard(el) {
-  var id = el.getAttribute('data-id');
-  var b = document.getElementById('body-' + id);
-  if (b) b.classList.toggle('expanded');
+function _toggleCrow(el, id) {
+  var det = document.getElementById('cdet-' + id);
+  if (!det) return;
+  var open = det.classList.contains('open');
+  document.querySelectorAll('.crow-detail.open').forEach(function(d) { d.classList.remove('open'); });
+  document.querySelectorAll('.crow.expanded-row').forEach(function(r) { r.classList.remove('expanded-row'); });
+  if (!open) { det.classList.add('open'); el.classList.add('expanded-row'); }
 }
+
 function _addToP(btn) { importDiscoveryLead(btn.getAttribute('data-discid')); }
-function _dismissP(btn) { dismissDiscoveryLead(btn.getAttribute('data-discid')); }
+function _dismissP(btn) { dismissDiscoveryLead(btn.getAttribute('data-discid')); _renderIntelQueue(); }
 function _startP(btn) {
   var discId = btn.getAttribute('data-discid');
   var qItem = (state.discoveryQueue || []).find(function(x) { return x.id === discId; });
-  var lead  = state.leads.find(function(l) { return l.name === (qItem && qItem.name); });
-  if (lead && lead.contactApproved) { toast('Pipeline started for ' + lead.name); log('PIPELINE START', 'Lead: ' + lead.name); }
-  else if (lead) { toast('LOCKED — Approve contact in Pipeline first.'); }
+  var lead = state.leads.find(function(l) { return l.name === (qItem && qItem.name); });
+  if (lead && lead.contactApproved) { toast('Pipeline started for ' + lead.name); log('PIPELINE START', lead.name); }
+  else if (lead) { toast('LOCKED — Approve contact in lead dossier first.'); }
   else { toast('Add to Pipeline first, then approve contact.'); }
 }
 
@@ -1907,36 +1881,35 @@ function _reloadAllLeads() {
   if (typeof loadAgentIntel === 'function') loadAgentIntel();
   if (typeof loadApolloLeads === 'function') loadApolloLeads();
   if (typeof loadSouthFloridaLeads === 'function') loadSouthFloridaLeads();
-  _renderDiscoveryHero();
-  _syncIntelBanner();
-  toast('Reloaded — ' + (state.discoveryQueue || []).length + ' contacts');
+  _renderIntelQueue();
+  toast('Reloaded — ' + (state.discoveryQueue || []).length + ' contacts in queue');
 }
 
-// Patch showPage to also trigger our additions
-var _origSP = typeof showPage === 'function' ? showPage : function(){};
-showPage = function(pageId, btn) {
-  _origSP(pageId, btn);
-  if (pageId === 'intel') { _renderDiscoveryHero(); _syncIntelBanner(); }
-  if (pageId === 'command') { _syncIntelBanner(); _renderCmdCharts(); }
-};
-
-// Patch renderAll
+// Patch renderAll to update our new elements
 var _origRA = typeof renderAll === 'function' ? renderAll : function(){};
 renderAll = function() {
   _origRA();
-  _syncIntelBanner();
-  _renderCmdCharts();
-  var a = state.leads.filter(function(l) { return !['Closed','Archived'].includes(l.status); });
-  var evEl = document.getElementById('tm-pipeline'); if (evEl) { var ev = calcEV(); evEl.textContent = '$' + fmtNum(Math.round(ev.base)); }
-  var aEl  = document.getElementById('cmd-active');  if (aEl)  aEl.textContent = a.length;
-  var dEl  = document.getElementById('cmd-decay');   if (dEl)  dEl.textContent = a.filter(function(l){return decayDays(l)>1;}).length;
-  var ts   = document.getElementById('cmd-total-sub'); if (ts) ts.textContent = state.leads.length + ' total';
-  var md   = document.getElementById('mode-display'); if (md)  md.textContent = state.autonomyMode || 'SEMI-AUTO';
+  _updateStats();
+  _renderIntelQueue();
+  renderKanban();
 };
+
+function _updateStats() {
+  var act = state.leads.filter(function(l) { return !['Closed','Archived'].includes(l.status); });
+  var ev = calcEV();
+  var evEl = document.getElementById('tm-pipeline'); if (evEl) evEl.textContent = '$' + fmtNum(Math.round(ev.base));
+  var aEl = document.getElementById('cmd-active'); if (aEl) aEl.textContent = act.length;
+  var dEl = document.getElementById('cmd-decay'); if (dEl) dEl.textContent = act.filter(function(l){return decayDays(l)>1;}).length;
+  var ts = document.getElementById('cmd-total-sub'); if (ts) ts.textContent = state.leads.length + ' total';
+  var md = document.getElementById('mode-display'); if (md) md.textContent = state.autonomyMode || 'SEMI-AUTO';
+}
+
+// Shim: showPage does nothing (no pages to switch)
+showPage = function(id, btn) { if (id === 'intel') { _renderIntelQueue(); } };
 
 // On load
 window.addEventListener('load', function() {
-  _syncIntelBanner();
-  _renderCmdCharts();
+  _updateStats();
+  _renderIntelQueue();
+  renderKanban();
 });
-
